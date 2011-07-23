@@ -1,4 +1,5 @@
 #!/usr/local/ruby/1.9.2-p136/bin/ruby
+require 'daemons'
 require 'irc-socket'
 require 'redis'
 require 'json'
@@ -7,8 +8,11 @@ require 'logger'
 DEBUG = ARGV[0] == "debug"
 
 SETTINGS = JSON.parse(File.open("settings.json").read)
-
 logfile = File.expand_path("log", File.dirname(__FILE__))
+puts "Backgrounding with logfile #{logfile}"
+log_opts = {:app_name => 'neuron.rb'}
+Daemons.daemonize(log_opts)
+
 LOG = Logger.new(logfile)
 predis = Redis.new
 irc = IRCSocket.new(SETTINGS["server"])
