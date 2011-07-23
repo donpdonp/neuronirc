@@ -12,9 +12,10 @@ require 'json'
       message = JSON.parse(json)
       puts "Heard #{message}"
       if message["target"][0] == '#'
-        if message["message"].match(/zrobo:.*(goodbye|bye)/)
+        if message["message"].match(/(zrobo:\s*)?(goodbye|bye|bye-?bye)\.?$/)
           puts "Saying bye"
-          predis.publish :say, {"target" => message["target"], "message" => "Bye-bye #{message["name"]}"}.to_json
+          nick = message["name"].match(/(.*)!/)[1]
+          predis.publish :say, {"command" => "say", "target" => message["target"], "message" => "Bye-bye #{nick}"}.to_json
         end
       end
     end

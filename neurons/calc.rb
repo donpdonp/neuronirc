@@ -19,7 +19,7 @@ require 'json'
           answer = "barf!" if answer == nil
           puts "Calculating #{expr} to #{answer}"
           nick = message["name"].match(/(.*)!/)[1]
-          predis.publish :say, {"command" => "say", "target" => message["target"], "message" => "#{answer}"}.to_json
+          predis.publish :say, {"command" => "say", "target" => message["target"], "message" => "#{expr} == #{answer}"}.to_json
         end
       end
     end

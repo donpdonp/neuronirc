@@ -1,5 +1,4 @@
 #!/usr/local/ruby/1.9.2-p136/bin/ruby
-require 'daemons'
 require 'irc-socket'
 require 'redis'
 require 'json'
@@ -9,17 +8,8 @@ DEBUG = ARGV[0] == "debug"
 
 SETTINGS = JSON.parse(File.open("settings.json").read)
 
-if ARGV[0] == "daemon"
-  logfile = File.expand_path("log", File.dirname(__FILE__))
-else
-  logfile = STDOUT
-end
-
-log_opts = {:app_name => 'neuron.rb', 
-            :log_output => true}
-Daemons.daemonize(log_opts) if ARGV[0] == "daemon"
+logfile = File.expand_path("log", File.dirname(__FILE__))
 LOG = Logger.new(logfile)
-
 predis = Redis.new
 irc = IRCSocket.new(SETTINGS["server"])
 LOG.info "Connecting to #{SETTINGS["server"]}"
