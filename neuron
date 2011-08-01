@@ -1,5 +1,11 @@
 #!/usr/bin/env ruby
 require 'bluepill'
+require 'redis'
+require 'yaml'
+
+SETTINGS = YAML.load(File.open("settings.yaml"))
+BASE_DIR = File.expand_path(File.dirname(__FILE__))
+
 
 def help
   puts "#{File.basename(__FILE__)} usage: [command] [options...]"
@@ -12,17 +18,23 @@ end
 
 help if ARGV.size == 0
 
-Bluepill.application("neuron") do |app|
-  app.process("neuron.rb") do |process|
-    process.start_command = "bundle exec lib/neuron.rb"
-    process.pid_file = "/tmp/neuron.pid"
-  end
-end
+bluepill_base_dir = File.join(BASE_DIR,".bluepill")
+controller = Bluepill::Controller.new({:base_dir => bluepill_base_dir})
+apps = controller.running_applications
 
 if ARGV[0] == 'start'
+  if apps.length == 0
+    puts "starting bluepilld"
+    system("bundle exec bluepill load neuron.pill --no-privileged --base-dir #{bluepill_base_dir}")
+  end
+  controller.handle_command('neuron', 'start', nil)
 end
 
 if ARGV[0] == 'stop'
+  if apps.length > 0
+    puts "stopping bluepilld"
+    controller.handle_command('neuron', 'quit', nil)
+  end
 end
 
 if ARGV.size == 2

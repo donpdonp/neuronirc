@@ -1,0 +1,6 @@
+---
+  :server: "some-irc-server"
+  :nick: "some-nick"
+  :bluepill: 
+    :base_dir: ".bluepill"
+    :log_file": "bluepill.log"
