@@ -18,21 +18,22 @@ end
 
 help if ARGV.size == 0
 
-bluepill_base_dir = File.join(BASE_DIR,".bluepill")
-controller = Bluepill::Controller.new({:base_dir => bluepill_base_dir})
+opts = {:base_dir => File.join(BASE_DIR,".bluepill"),
+        :log_file => File.join(BASE_DIR,"bluepill.log")}
+controller = Bluepill::Controller.new(opts)
 apps = controller.running_applications
 
 if ARGV[0] == 'start'
   if apps.length == 0
-    puts "starting bluepilld"
-    system("bundle exec bluepill load neuron.pill --no-privileged --base-dir #{bluepill_base_dir}")
+    cmd = "bundle exec bluepill load neuron.pill --no-privileged --base-dir #{opts[:base_dir]} --logfile #{opts[:log_file]}"
+    $stderr.puts cmd
+    system(cmd)
   end
   controller.handle_command('neuron', 'start', nil)
 end
 
 if ARGV[0] == 'stop'
   if apps.length > 0
-    puts "stopping bluepilld"
     controller.handle_command('neuron', 'quit', nil)
   end
 end
@@ -45,6 +46,8 @@ if ARGV.size == 3
   msg = {"command" => ARGV[0], "target" => ARGV[1], "message" => ARGV[2]}
 end
 
-puts msg.inspect
-redis.publish :say, msg.to_json
+#redis = Redis.new
+
+#puts msg.inspect
+#redis.publish :say, msg.to_json
 
