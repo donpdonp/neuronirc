@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+require 'bluepill'
+
+def help
+  puts "#{File.basename(__FILE__)} usage: [command] [options...]"
+  puts "'start'"
+  puts "'stop'"
+  puts "'join #<channel>'"
+  puts "'say #<channel> <msg>'"
+  exit
+end
+
+help if ARGV.size == 0
+
+Bluepill.application("neuron") do |app|
+  app.process("neuron.rb") do |process|
+    process.start_command = "bundle exec lib/neuron.rb"
+    process.pid_file = "/tmp/neuron.pid"
+  end
+end
+
+if ARGV[0] == 'start'
+end
+
+if ARGV[0] == 'stop'
+end
+
+if ARGV.size == 2
+  msg = {"command" => ARGV[0], "message" => ARGV[1]}
+end
+
+if ARGV.size == 3
+  msg = {"command" => ARGV[0], "target" => ARGV[1], "message" => ARGV[2]}
+end
+
+puts msg.inspect
+redis.publish :say, msg.to_json
+

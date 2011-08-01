@@ -1,6 +1,5 @@
 source "http://rubygems.org"
 
-gem 'daemons'
-gem 'foreman'
+gem 'bluepill'
 gem 'redis'
 gem 'irc-socket'

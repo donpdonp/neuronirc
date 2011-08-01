@@ -1,20 +1,22 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    activesupport (3.0.9)
+    bluepill (0.0.51)
+      activesupport (>= 3.0.0)
+      daemons (~> 1.1.0)
+      i18n (>= 0.5.0)
+      state_machine (~> 0.9.4)
     daemons (1.1.4)
-    foreman (0.19.0)
-      term-ansicolor (~> 1.0.5)
-      thor (>= 0.13.6)
+    i18n (0.6.0)
     irc-socket (1.0.1)
     redis (2.2.1)
-    term-ansicolor (1.0.6)
-    thor (0.14.6)
+    state_machine (0.9.4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  daemons
-  foreman
+  bluepill
   irc-socket
   redis
