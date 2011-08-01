@@ -1,17 +1,17 @@
 #!/usr/bin/env ruby
 require 'bluepill'
 require 'redis'
-require 'yaml'
+require 'json'
 
-SETTINGS = YAML.load(File.open("settings.yaml"))
 BASE_DIR = File.expand_path(File.dirname(__FILE__))
-
 
 def help
   puts "#{File.basename(__FILE__)} usage: [command] [options...]"
   puts "'start'"
   puts "'stop'"
   puts "'join #<channel>'"
+  puts "'part #<channel>'"
+  puts "'nick <nickname>'"
   puts "'say #<channel> <msg>'"
   exit
 end
@@ -46,8 +46,8 @@ if ARGV.size == 3
   msg = {"command" => ARGV[0], "target" => ARGV[1], "message" => ARGV[2]}
 end
 
-#redis = Redis.new
+redis = Redis.new
 
-#puts msg.inspect
-#redis.publish :say, msg.to_json
+puts msg.inspect
+redis.publish :say, msg.to_json
 

@@ -3,11 +3,10 @@ require 'daemons'
 require 'irc-socket'
 require 'redis'
 require 'json'
-require 'yaml'
 require 'logger'
 
-SETTINGS = YAML.load(File.open("settings.yaml"))
 BASE_DIR = File.expand_path(File.dirname(__FILE__))
+SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../settings.json")))
 
 class Neuron
   def self.start
@@ -54,7 +53,6 @@ class Neuron
     end
 
     while line = irc.read
-      LOG.debug line if DEBUG
       msg = /^(:?(?<name>([^ ]*)) )?(?<command>[^ ]*)( (?<target>[^ ]*))? :?(?<message>(.*))$/.match(line.force_encoding("UTF-8"))
       LOG.error "MISPARSE #{line} into #{msg.inspect}" if msg.nil?
       msg_hash = {name:msg[:name], command:msg[:command], target:msg[:target], message:msg[:message]}
