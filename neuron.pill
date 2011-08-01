@@ -4,7 +4,7 @@ BASE_DIR = File.expand_path(File.dirname(__FILE__))
 Bluepill.application("neuron", {:base_dir => File.join(BASE_DIR,".bluepill"),
                                 :log_file => File.join(BASE_DIR,"bluepill.log")}) do |app|
   app.process("neuron.rb") do |process|
-    process.start_command = "bundle exec ruby lib/neuron.rb"
+    process.start_command = "bundle exec ruby -I#{File.join(BASE_DIR,"lib") -rneuron -e Neuron.start}"
     process.pid_file = "neuron.rb.pid"
   end
 end
