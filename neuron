@@ -41,8 +41,9 @@ if ARGV[0] == 'start'
 end
 
 if ARGV[0] == 'stop'
-  if apps.length > 0
-    controller.handle_command('neuron', 'quit', nil)
+  apps.each do |app|
+    controller.handle_command(app, 'stop', nil)
+    controller.handle_command(app, 'quit', nil)
   end
 end
 

@@ -1,9 +1,9 @@
 IRC bot Framework
 =================
 
-The core is neuron.rb which listens to an IRC server, and a redis server. It bidirectionally passes messages between them. Different modules can be started/stopped/upgraded without taking down or restarting the core.
+The core is neuron.rb which passes messages between an IRC server and a redis server. 
 
-A module sends command/parameter pairs in json to a redis queue. A module can be written in any language that has a redis binding.
+The bot is extended by writing apps that use redis to listen/send messages to the bot and the current irc channel. Any language that has a redis binding will work (no irc support needed). The directory lib/neuron/dentrites/ has example modules.
 
 #### Install
 
@@ -19,3 +19,9 @@ A module sends command/parameter pairs in json to a redis queue. A module can be
     $ ./neuron start
     Sent start to:
       :neuron.rb
+       :dendrites/bye.rb
+       :dendrites/calc.rb
+       :dendrites/hello.rb
+    $ ./neuron join '#somechannel'
+    {"command"=>"join", "message"=>"#somechannel"}
+

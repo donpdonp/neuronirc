@@ -1,5 +1,6 @@
 
 BASE_DIR = File.expand_path(File.dirname(__FILE__))
+DENDRITE_DIR = File.join(BASE_DIR, "/lib/neuron/dendrites")
 
 Bluepill.application("neuron", {:base_dir => File.join(BASE_DIR,".bluepill"),
                                 :log_file => File.join(BASE_DIR,"bluepill.log")}) do |app|
@@ -7,5 +8,14 @@ Bluepill.application("neuron", {:base_dir => File.join(BASE_DIR,".bluepill"),
     process.start_command = "bundle exec ruby -I#{File.join(BASE_DIR,"lib")} -rneuron -e Neuron.start"
     process.pid_file = "#{BASE_DIR}/.bluepill/pids/neuron/core.pid"
     process.daemonize = true
+  end
+
+  Dir[DENDRITE_DIR+"/*rb"].each do |dpath|
+    dendrite = File.basename(dpath)
+    app.process("dendrites/"+dendrite) do |process|
+      process.start_command = "bundle exec ruby -I#{File.join(BASE_DIR,"lib")} #{DENDRITE_DIR+"/"+dendrite}"
+      process.pid_file = "#{BASE_DIR}/.bluepill/pids/neuron/dendrite-#{dendrite}.pid"
+      process.daemonize = true
+    end  
   end
 end
