@@ -16,10 +16,9 @@ require 'json'
         if expr
           expr = expr[1].gsub(/[^0-9\.\^*+-\/() ]/,'')
           answer = eval expr rescue nil
-          answer = "barf!" if answer == nil
           puts "Calculating #{expr} to #{answer}"
           nick = message["name"].match(/(.*)!/)[1]
-          predis.publish :say, {"command" => "say", "target" => message["target"], "message" => "#{expr} == #{answer}"}.to_json
+          predis.publish :say, {"command" => "say", "target" => message["target"], "message" => "#{expr} == #{answer}"}.to_json unless answer.nil?
         end
       end
     end

@@ -12,7 +12,7 @@ require 'json'
       message = JSON.parse(json)
       puts "Heard #{message}"
       if message["target"][0] == '#'
-        if message["message"].match(/(zrobo:\s*)?(hello|hi)\.?$/)
+        if message["message"].match(/(zrobo:\s*)?(hello|hi|howdy)[!\.]?$/)
           puts "Saying hi"
           nick = message["name"].match(/(.*)!/)[1]
           predis.publish :say, {"command" => "say", "target" => message["target"], "message" => "Hello #{nick}. I am a bot."}.to_json
