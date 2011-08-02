@@ -16,12 +16,20 @@ def help
   exit
 end
 
-help if ARGV.size == 0
+
+help if ARGV[0] == 'help'
 
 opts = {:base_dir => File.join(BASE_DIR,".bluepill"),
         :log_file => File.join(BASE_DIR,"bluepill.log")}
 controller = Bluepill::Controller.new(opts)
 apps = controller.running_applications
+
+if ARGV.size == 0
+  if apps.size > 0
+    app = apps.first
+    puts "neuron is running."
+  end
+end
 
 if ARGV[0] == 'start'
   if apps.length == 0
@@ -48,6 +56,7 @@ end
 
 redis = Redis.new
 
-puts msg.inspect
-redis.publish :say, msg.to_json
-
+if msg
+  puts msg.inspect
+  redis.publish :say, msg.to_json
+end

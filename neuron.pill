@@ -6,6 +6,6 @@ Bluepill.application("neuron", {:base_dir => File.join(BASE_DIR,".bluepill"),
   app.process("neuron.rb") do |process|
     process.start_command = "bundle exec ruby -I#{File.join(BASE_DIR,"lib")} -rneuron -e Neuron.start"
     process.pid_file = "neuron.rb.pid"
-    process.daemonize = true
+    #process.daemonize = true
   end
 end

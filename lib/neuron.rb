@@ -10,6 +10,10 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../settings.json")))
 
 class Neuron
   def self.start
+    puts "daemonizing"
+    log_opts = {:app_name => 'neuron'}
+    Daemons.daemonize(log_opts)
+    puts "daemonizing done"
     predis = Redis.new
     irc = IRCSocket.new(SETTINGS["server"])
     puts "Connecting to #{SETTINGS["server"]}"
