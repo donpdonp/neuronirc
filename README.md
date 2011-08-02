@@ -7,16 +7,15 @@ A module sends command/parameter pairs in json to a redis queue. A module can be
 
 #### Install
 
-    Clone the repo
+    #Clone the repo
     $ git clone git://github.com/donpdonp/neuronirc.git
-    Copy settings.yml.sample to settings.yml and edit
-    $ cp sesettings.yml.sample settings.yml
-    $ vi settings.yml
-    Run neuron.rb
-    $ foreman start
-    11:16:33 core.1          | started with pid 6172
-    11:16:33 neuron-hello.1  | started with pid 6175
-    11:16:33 neuron-bye.1    | started with pid 6180
-    11:16:33 neuron-calc.1   | started with pid 6185
-
-    
+    #Copy settings.json.sample to settings.json and edit
+    $ cp settings.json.sample settings.json
+    $ vi settings.json
+    {  "server" : "irc.freenode.net",
+       "nick"   : "neuronbot"
+    }
+    #Start the daemon
+    $ ./neuron start
+    Sent start to:
+      :neuron.rb
