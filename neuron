@@ -37,13 +37,13 @@ if ARGV[0] == 'start'
     $stderr.puts cmd
     system(cmd)
   end
-  controller.handle_command('neuron', 'start', nil)
+  controller.handle_command('neuron', 'start', ARGV[1])
 end
 
 if ARGV[0] == 'stop'
-  apps.each do |app|
-    controller.handle_command(app, 'stop', nil)
-    controller.handle_command(app, 'quit', nil)
+  controller.handle_command('neuron', 'stop', ARGV[1])
+  if ARGV[1].nil?
+    controller.handle_command('neuron', 'quit', nil)
   end
 end
 
