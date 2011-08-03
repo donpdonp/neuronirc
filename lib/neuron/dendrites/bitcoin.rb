@@ -1,6 +1,7 @@
 #!/usr/local/ruby/1.9.2-p136/bin/ruby
 require 'redis'
 require 'json'
+require 'httparty'
 
   STDOUT.sync = true
   redis = Redis.new
@@ -13,18 +14,15 @@ require 'json'
       message = JSON.parse(json)
       puts "Heard #{message}"
       if message["target"][0] == '#' && message["type"] == "emessage"
-        expr = message["message"].match(/!?calc\s+(.*)/)
+        expr = message["message"].match(/!?bitcoin\s?(.*)/)
         if expr
-          expr = expr[1].gsub(/[^0-9\.\^*+-\/() ]/,'')
-          answer = eval expr rescue nil
-          puts "Calculating #{expr} to #{answer}"
-          msg = "#{expr} == #{answer}"
-          if message["to_me"] == "true"
-            msg = "#{message["nick"]}: "+msg
-          end
+          puts "loading mtgox"
+          ticker = HTTParty.get("https://mtgox.com/api/0/data/ticker.php",
+                                :headers => {"user-agent"=>"neuroirc"})
+
           predis.publish :say, {"command" => "say", 
                                 "target" => message["target"], 
-                                "message" => msg}.to_json unless answer.nil?
+                                "message" => "mtgox last $#{ticker["ticker"]["last"]}"}.to_json
         end
       end
     end
