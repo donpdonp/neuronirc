@@ -4,11 +4,13 @@ require 'redis'
 require 'json'
 
 BASE_DIR = File.expand_path(File.dirname(__FILE__))
+SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"settings.json")))
+redis = Redis.new
 
 def help
   puts "#{File.basename(__FILE__)} usage: [command] [options...]"
-  puts "'start'"
-  puts "'stop'"
+  puts "'start [<process name>]'"
+  puts "'stop [<process name>]'"
   puts "'join #<channel>'"
   puts "'part #<channel>'"
   puts "'nick <nickname>'"
@@ -16,23 +18,22 @@ def help
   exit
 end
 
-
 help if ARGV[0] == 'help'
 
 opts = {:base_dir => File.join(BASE_DIR,".bluepill"),
         :log_file => File.join(BASE_DIR,"bluepill.log")}
 controller = Bluepill::Controller.new(opts)
-apps = controller.running_applications
+running = controller.running_applications.include?('neuron')
 
 if ARGV.size == 0
-  if apps.size > 0
-    app = apps.first
+  if running
     puts "neuron is running."
   end
 end
 
+# Daemon management
 if ARGV[0] == 'start'
-  if apps.length == 0
+  unless running
     cmd = "bundle exec bluepill load neuron.pill --no-privileged --base-dir #{opts[:base_dir]} --logfile #{opts[:log_file]}"
     $stderr.puts cmd
     system(cmd)
@@ -47,6 +48,7 @@ if ARGV[0] == 'stop'
   end
 end
 
+# Send the command to the bot
 if ARGV.size == 2
   msg = {"command" => ARGV[0], "message" => ARGV[1]}
 end
@@ -54,8 +56,6 @@ end
 if ARGV.size == 3
   msg = {"command" => ARGV[0], "target" => ARGV[1], "message" => ARGV[2]}
 end
-
-redis = Redis.new
 
 if msg
   puts msg.inspect
