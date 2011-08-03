@@ -31,6 +31,7 @@ if ARGV.size == 0
   if running
     puts "neuron is running as nick: #{redis.get('nick')}"
   end
+  controller.handle_command('neuron', 'status')
 end
 
 # Daemon management
@@ -53,7 +54,8 @@ end
 
 if ARGV[0] == 'quit'
   if running
-    controller.handle_command('neuron', 'quit', nil)
+    controller.handle_command('neuron', 'stop')
+    controller.handle_command('neuron', 'quit')
   else
     puts "Not running"
   end
