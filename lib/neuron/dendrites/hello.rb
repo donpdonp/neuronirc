@@ -1,6 +1,7 @@
 #!/usr/local/ruby/1.9.2-p136/bin/ruby
 require 'redis'
 require 'json'
+require 'neuron/dendrite'
 
   redis = Redis.new
   predis = Redis.new
