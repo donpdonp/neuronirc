@@ -52,6 +52,12 @@ if ARGV[0] == 'stop'
   end
 end
 
+if ARGV[0] == 'restart'
+  if running
+    controller.handle_command('neuron', 'restart', 'dendrites')
+  end
+end
+
 if ARGV[0] == 'quit'
   if running
     controller.handle_command('neuron', 'stop')

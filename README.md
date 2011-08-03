@@ -38,6 +38,13 @@ The bot is extended by writing apps that use redis to listen/send messages to th
     $ ./neuron join '#somechannel'
     {"command"=>"join", "message"=>"#somechannel"}
 
+    # Restart the dendrites (after updating lib/neuron/dentrites/*)
+    $ ./neuron restart
+    Sent restart to:
+      dendrites:bye
+      dendrites:calc
+      dendrites:hello
+
     # Stop the dendrites and quit the daemon
     $ ./neuron quit
     Sent stop to:
