@@ -11,7 +11,7 @@ require 'json'
     on.message do |channel, json|
       message = JSON.parse(json)
       puts "Heard #{message}"
-      if message["target"][0] == '#'
+      if message["target"][0] == '#' && message["type"] != "emessage"
         expr = message["message"].match(/!calc\s+(.*)/)
         if expr
           expr = expr[1].gsub(/[^0-9\.\^*+-\/() ]/,'')
