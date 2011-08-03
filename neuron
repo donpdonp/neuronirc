@@ -57,7 +57,7 @@ end
 
 if ARGV[0] == 'restart'
   if running
-    controller.handle_command('neuron', 'restart', 'dendrites')
+    controller.handle_command('neuron', 'restart', ARGV[1] ||'dendrites')
   end
 end
 
