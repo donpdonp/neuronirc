@@ -7,6 +7,7 @@ require 'logger'
 
 BASE_DIR = File.expand_path(File.join(File.dirname(__FILE__),".."))
 SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"settings.json")))
+STDOUT.sync = true
 
 class Neuron
   def self.start
@@ -58,7 +59,7 @@ class Neuron
             @irc.part(message['message'])
           end
           if message["command"] == "nick"
-            puts "New nick #{message['message']}"
+            puts "Changing nick #{message['message']}"
             @irc.nick(message['message'])
           end
         rescue  JSON::ParserError
@@ -74,19 +75,27 @@ class Neuron
       msg = /^(:?(?<name>([^ ]*)) )?(?<command>[^ ]*)( (?<target>[^ ]*))? :?(?<message>(.*))$/.match(line.force_encoding("UTF-8"))
       puts "MISPARSE #{line} into #{msg.inspect}" if msg.nil?
       msg_hash = {name:msg[:name], command:msg[:command], target:msg[:target], message:msg[:message]}
+      puts line
 
       if msg[:command] == '376'
         puts "Ready"
+        predis.set('nick', SETTINGS["nick"])
         predis.publish :lines, msg_hash.to_json
       end
 
       if msg[:command] == '433'
-        puts "nick already in use"
+        puts "Nick already in use"
         predis.publish :lines, msg_hash.to_json
       end
 
       if msg[:command] == 'PING'
         @irc.pong(msg[:message])
+      end
+
+      if msg[:command] == 'NICK'
+        puts "New nick #{msg[:message]}"
+        predis.set('nick', msg[:message])
+        predis.publish :lines, msg_hash.to_json
       end
 
       if msg[:command] == 'PRIVMSG'
