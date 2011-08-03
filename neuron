@@ -21,7 +21,7 @@ def help
   exit
 end
 
-help if ARGV[0] == 'help'
+help if ['help','--help','-h','-?'].include?(ARGV[0])
 
 log_dir = File.join(BASE_DIR, "log")
 Dir.mkdir(log_dir) unless File.directory?(log_dir)
