@@ -7,21 +7,43 @@ The bot is extended by writing apps that use redis to listen/send messages to th
 
 #### Install
 
-    #Clone the repo
+    # Clone the repo
     $ git clone git://github.com/donpdonp/neuronirc.git
-    #Copy settings.json.sample to settings.json and edit
+    # Configure settings.json
     $ cp settings.json.sample settings.json
     $ vi settings.json
     {  "server" : "irc.freenode.net",
        "nick"   : "neuronbot"
     }
-    #Start the daemon
+
+    # Start the daemon and the dendrites(bot modules)
     $ ./neuron start
     Sent start to:
-      :neuron.rb
-       :dendrites/bye.rb
-       :dendrites/calc.rb
-       :dendrites/hello.rb
+      :neurond
+      dendrites:bye
+      dendrites:calc
+      dendrites:hello
+
+    # Status
+    $ ./neuron 
+    neuron is running as nick: neuronbot
+    neurond(pid:29575): up
+    
+    dendrites:
+      bye(pid:29585): up
+      calc(pid:29595): up
+      hello(pid:29605): up
+
+    # Tell the bot to join a channel
     $ ./neuron join '#somechannel'
     {"command"=>"join", "message"=>"#somechannel"}
+
+    # Stop the dendrites and quit the daemon
+    $ ./neuron quit
+    Sent stop to:
+      :neurond
+      dendrites:bye
+      dendrites:calc
+      dendrites:hello
+    Killing bluepilld[29382]
 
