@@ -10,8 +10,9 @@ class Hello
 
   def go
     setup
-    hello_rex = /^(#{mynick}:\s*)?(hello|hi|howdy)[!\.]?$/
-    puts "Looking for hellos to #{mynick} with #{hello_rex}"
+    hello_rex = /^(hello|hi|howdy)[!\.]?$/
+    puts "Looking for hellos with #{hello_rex}"
+
     redis = Redis.new
     redis.subscribe(:lines) do |on|
       on.subscribe do |channel, subscriptions|
@@ -20,11 +21,20 @@ class Hello
       on.message do |channel, json|
         message = JSON.parse(json)
         puts "Heard #{message}"
-        if message["target"][0] == '#'
-          if message["message"].match(hello_rex)
-            puts "Saying hi"
-            nick = message["name"].match(/(.*)!/)[1]
-            @redis.publish :say, {"command" => "say", "target" => message["target"], "message" => "Hello #{nick}. I am a bot."}.to_json
+        if message["type"] == "emessage"
+          if message["target"][0] == '#'
+            if message["message"].match(hello_rex)
+              puts "Saying hi"
+              if message["to_me"] == "true"
+                msg = "#{message["nick"]}: Hello."
+              else
+                msg = "Hello #{message["nick"]}."
+              end
+              msg += " I am a bot."
+              @redis.publish :say, {"command" => "say", 
+                                    "target" => message["target"],
+                                    "message" => msg}.to_json
+            end
           end
         end
       end
