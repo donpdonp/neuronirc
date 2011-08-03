@@ -10,49 +10,67 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"settings.json")))
 
 class Neuron
   def self.start
-    predis = Redis.new
-    irc = IRCSocket.new(SETTINGS["server"])
-    puts "Connecting to #{SETTINGS["server"]}"
-    irc.connect
-    irc.nick SETTINGS["nick"] 
-    irc.user SETTINGS["nick"], 0, "*", "Neuron Bot"
-    puts "Connected as #{SETTINGS["nick"]}"
+    bot = Neuron.new
+    bot.go
+  end
 
+  def initialize
+    @irc = IRCSocket.new(SETTINGS["server"])
+  end
+
+  def go
+    connect_irc
     Thread.new do
-      redis = Redis.new
-      redis.subscribe(:say) do |on|
-        on.subscribe do |channel, subscriptions|
-          puts "redis: subscribed to ##{channel} (#{subscriptions} subscriptions)"
-        end
-        on.message do |channel, json|
-          begin
-            message = JSON.parse(json)
-            puts "redis receive: #{message}"
+      listen_redis
+    end
+    listen_irc
+  end
 
-            if message["command"] == "say"
-              puts "Saying #{message['message']}"
-              irc.privmsg(message['target'], message['message'])
-            end
-            if message["command"] == "join"
-              puts "Joining #{message['message']}"
-              irc.join(message['message'])
-            end
-            if message["command"] == "part"
-              puts "Parting #{message['message']}"
-              irc.part(message['message'])
-            end
-            if message["command"] == "nick"
-              puts "New nick #{message['message']}"
-              irc.nick(message['message'])
-            end
-          rescue  JSON::ParserError
-            puts "Parse error on #{json}"
+  def connect_irc
+    puts "Connecting to #{SETTINGS["server"]}"
+    @irc.connect
+    @irc.nick SETTINGS["nick"] 
+    @irc.user SETTINGS["nick"], 0, "*", "Neuron Bot"
+    puts "Connected as #{SETTINGS["nick"]}"
+  end
+
+  def listen_redis
+    redis = Redis.new
+    redis.subscribe(:say) do |on|
+      on.subscribe do |channel, subscriptions|
+        puts "redis: subscribed to ##{channel} (#{subscriptions} subscriptions)"
+      end
+      on.message do |channel, json|
+        begin
+          message = JSON.parse(json)
+          puts "redis receive: #{message}"
+
+          if message["command"] == "say"
+            puts "Saying #{message['message']}"
+            @irc.privmsg(message['target'], message['message'])
           end
+          if message["command"] == "join"
+            puts "Joining #{message['message']}"
+            @irc.join(message['message'])
+          end
+          if message["command"] == "part"
+            puts "Parting #{message['message']}"
+            @irc.part(message['message'])
+          end
+          if message["command"] == "nick"
+            puts "New nick #{message['message']}"
+            @irc.nick(message['message'])
+          end
+        rescue  JSON::ParserError
+          puts "Parse error on #{json}"
         end
       end
     end
-
-    while line = irc.read
+  end
+    
+  def listen_irc
+    predis = Redis.new
+    while line = @irc.read
       msg = /^(:?(?<name>([^ ]*)) )?(?<command>[^ ]*)( (?<target>[^ ]*))? :?(?<message>(.*))$/.match(line.force_encoding("UTF-8"))
       LOG.error "MISPARSE #{line} into #{msg.inspect}" if msg.nil?
       msg_hash = {name:msg[:name], command:msg[:command], target:msg[:target], message:msg[:message]}
@@ -68,7 +86,7 @@ class Neuron
       end
 
       if msg[:command] == 'PING'
-        irc.pong(msg[:message])
+        @irc.pong(msg[:message])
       end
 
       if msg[:command] == 'PRIVMSG'
@@ -76,7 +94,5 @@ class Neuron
         predis.publish :lines, msg_hash.to_json
       end
     end
-
-    puts "finished."
   end
 end
