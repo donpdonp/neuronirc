@@ -93,9 +93,12 @@ class Neuron
       end
 
       if msg[:command] == 'NICK'
-        puts "New nick #{msg[:message]}"
-        predis.set('nick', msg[:message])
-        predis.publish :lines, msg_hash.to_json
+        nick = msg[:name].match(/(.*)!/)[1]
+        if nick == predis.get('nick')
+          puts "New nick #{msg[:message]}"
+          predis.set('nick', msg[:message])
+          predis.publish :lines, msg_hash.to_json
+        end
       end
 
       if msg[:command] == 'PRIVMSG'
