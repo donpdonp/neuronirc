@@ -15,7 +15,7 @@ require 'json'
       if message["target"][0] == '#' && message["type"] == "emessage"
         expr = message["message"].match(/!?calc\s+(.*)/)
         if expr
-          expr = expr[1].gsub(/[^0-9\.\^*+-\/() ]/,'')
+          expr = expr[1].gsub(/[^0-9\.\^*+-\/()!^<>= ]/,'')
           answer = eval expr rescue nil
           puts "Calculating #{expr} to #{answer}"
           msg = "#{expr} == #{answer}"
