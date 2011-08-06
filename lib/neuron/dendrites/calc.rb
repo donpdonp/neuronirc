@@ -13,12 +13,11 @@ require 'json'
       message = JSON.parse(json)
       puts "Heard #{message}"
       if message["target"][0] == '#' && message["type"] == "emessage"
-        expr = message["message"].match(/!?calc\s+(.*)/)
+        expr = message["message"].match(/!?calc\s+([0-9\.\^*+-\/()^<>= ]+)/)
         if expr
-          expr = expr[1].gsub(/[^0-9\.\^*+-\/()!^<>= ]/,'')
-          answer = eval expr rescue nil
+          answer = eval expr[1] rescue nil
           puts "Calculating #{expr} to #{answer}"
-          msg = "#{expr} == #{answer}"
+          msg = "#{expr[1]} == #{answer}"
           if message["to_me"] == "true"
             msg = "#{message["nick"]}: "+msg
           end
