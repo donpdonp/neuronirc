@@ -72,7 +72,7 @@ class Neuron
   def listen_irc
     predis = Redis.new
     while line = @irc.read
-      msg = /^(:?(?<name>([^ ]*)) )?(?<command>[^ ]*)( (?<target>[^ ]*))? :?(?<message>(.*))$/.match(line.force_encoding("UTF-8"))
+      msg = /^(:?(?<name>([^ ]*)) )?(?<command>[^ ]*)( (?<target>[^ ]*))? :?(?<message>(.*))$/.match(line.force_encoding("ISO8859-1"))
       puts "MISPARSE #{line} into #{msg.inspect}" if msg.nil?
       msg_hash = {name:msg[:name], command:msg[:command], target:msg[:target], message:msg[:message]}
       puts line
