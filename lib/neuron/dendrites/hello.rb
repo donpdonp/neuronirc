@@ -10,7 +10,7 @@ class Hello
 
   def go
     setup
-    hello_rex = /^(hello|hi|howdy)[!\.]?$/
+    hello_rex = /^(hello|hi|howdy|yo)[!\.]?$/
     puts "Looking for hellos with #{hello_rex}"
 
     redis = Redis.new
