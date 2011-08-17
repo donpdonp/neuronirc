@@ -4,8 +4,10 @@ require 'irc-socket'
 require 'redis'
 require 'json'
 require 'logger'
+require 'bluepill'
 
 BASE_DIR = File.expand_path(File.join(File.dirname(__FILE__),".."))
+LOG_DIR = File.join(BASE_DIR, "log")
 SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"settings.json")))
 STDOUT.sync = true
 
@@ -17,6 +19,9 @@ class Neuron
 
   def initialize
     @irc = IRCSocket.new(SETTINGS["server"])
+    opts = {:base_dir => File.join(BASE_DIR,".bluepill"),
+            :log_file => File.join(LOG_DIR,"bluepill")}
+    @bluepill = Bluepill::Controller.new(opts)
   end
 
   def go
@@ -47,7 +52,7 @@ class Neuron
           puts "redis receive: #{message}"
 
           if message["command"] == "say"
-            puts "Saying #{message['message']}"
+            puts "Saying #{message['message']} on #{message['target']}"
             @irc.privmsg(message['target'], message['message'])
           end
           if message["command"] == "join"
