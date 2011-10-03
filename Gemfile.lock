@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     activesupport (3.0.10)
+    addressable (2.2.6)
     bluepill (0.0.51)
       activesupport (>= 3.0.0)
       daemons (~> 1.1.0)
@@ -9,10 +10,16 @@ GEM
       state_machine (~> 0.9.4)
     crack (0.1.8)
     daemons (1.1.4)
+    faraday (0.7.4)
+      addressable (~> 2.2.6)
+      multipart-post (~> 1.1.0)
+      rack (< 2, >= 1.1.0)
     httparty (0.7.8)
       crack (= 0.1.8)
     i18n (0.6.0)
     irc-socket (1.0.1)
+    multipart-post (1.1.3)
+    rack (1.3.4)
     redis (2.2.1)
     state_machine (0.9.4)
 
@@ -21,6 +28,7 @@ PLATFORMS
 
 DEPENDENCIES
   bluepill
+  faraday
   httparty
   irc-socket
   redis
