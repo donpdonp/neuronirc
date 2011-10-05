@@ -14,16 +14,21 @@ require 'faraday'
       message = JSON.parse(json)
       puts "Heard #{message}"
       if message["target"][0] == '#' && message["type"] == "emessage"
-        expr = message["message"].match(/!?(quote|stock)\s+(.+)/)
+        expr = message["message"].match(/^!?(quote|stock)\s+(.+)/)
         if expr
           symbol = expr[2]
           url = "http://download.finance.yahoo.com/d/quotes.csv?s=#{symbol}&f=snl1"
           puts "Searching for stock symbol #{symbol}; #{url}"
           csv = Faraday.get url
           msg = csv.body.split(',')
+          msg = "#{msg[0].gsub('"','')} #{msg[1]} $#{msg[2]}"
+          if message["to_me"] == "true"
+            msg = "#{message["nick"]}: #{msg}"
+          end
+
           predis.publish :say, {"command" => "say", 
                                 "target" => message["target"], 
-                                "message" => "#{msg[0].gsub('"','')} #{msg[1]} $#{msg[2]}"}.to_json unless csv.nil?
+                                "message" => msg}.to_json unless csv.nil?
         end
       end
     end
