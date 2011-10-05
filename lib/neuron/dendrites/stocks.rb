@@ -2,6 +2,7 @@
 require 'redis'
 require 'json'
 require 'faraday'
+require 'csv'
 
   STDOUT.sync = true
   redis = Redis.new
@@ -17,11 +18,16 @@ require 'faraday'
         expr = message["message"].match(/^!?(quote|stock)\s+(.+)/)
         if expr
           symbol = expr[2]
-          url = "http://download.finance.yahoo.com/d/quotes.csv?s=#{symbol}&f=snl1"
-          puts "Searching for stock symbol #{symbol}; #{url}"
-          csv = Faraday.get url
-          msg = csv.body.split(',')
-          msg = "#{msg[0].gsub('"','')} #{msg[1]} $#{msg[2]}"
+          puts "Searching for stock symbol #{symbol}"
+          csv = Faraday.get {|r| r.url "http://download.finance.yahoo.com/d/quotes", :symbol=>symbol, :f => "snl1"}
+          msg = ""
+          CSV.parse(csv.body) do |row|
+            if row[2].to_i > 0
+              msg += "#{row[0]} #{row[1]} $#{row[2]} "
+            else
+              msg += "#{row[0]}: nothing"
+            end
+          end
           if message["to_me"] == "true"
             msg = "#{message["nick"]}: #{msg}"
           end
