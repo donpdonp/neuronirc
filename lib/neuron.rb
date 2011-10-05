@@ -22,6 +22,7 @@ class Neuron
     opts = {:base_dir => File.join(BASE_DIR,".bluepill"),
             :log_file => File.join(LOG_DIR,"bluepill")}
     @bluepill = Bluepill::Controller.new(opts)
+    @redis = Redis.new
   end
 
   def go
@@ -41,8 +42,7 @@ class Neuron
   end
 
   def listen_redis
-    redis = Redis.new
-    redis.subscribe(:say) do |on|
+    @redis.subscribe(:say) do |on|
       on.subscribe do |channel, subscriptions|
         puts "redis: subscribed to ##{channel} (#{subscriptions} subscriptions)"
       end
@@ -57,6 +57,7 @@ class Neuron
           end
           if message["command"] == "join"
             puts "Joining #{message['message']}"
+            @joining_channel = message['message']
             @irc.join(message['message'])
           end
           if message["command"] == "part"
@@ -88,6 +89,21 @@ class Neuron
         predis.publish :lines, msg_hash.to_json
       end
 
+      if msg[:command] == '353'
+        regex = msg[:message].match(/= (#.*) :(.*)/)
+        channel = regex[1]
+        nicks = regex[2].split
+        predis.smembers(channel).each {|m| predis.srem(channel, m)} #clean out
+        nicks.each {|nick| predis.sadd(channel, nick.sub('@',''))} #fill up
+        known_nicks = predis.smembers(channel)
+        puts "known nicks are #{known_nicks}"
+      end
+
+      if msg[:command] == '366'
+        puts "end channel nick list for #{msg[:target]}: #{msg[:message]}"
+        @joining_channel = nil
+      end
+
       if msg[:command] == '433'
         puts "Nick already in use"
         predis.publish :lines, msg_hash.to_json
@@ -108,6 +124,16 @@ class Neuron
 
       if msg[:command] == 'PRIVMSG'
         puts "Storing #{msg_hash}"
+        predis.publish :lines, msg_hash.to_json
+      end
+
+      if msg[:command] == 'JOIN'
+        puts "Joined #{msg[:command]}"
+        predis.publish :lines, msg_hash.to_json
+      end
+
+      if msg[:command] == 'PART'
+        puts "Parted #{msg[:command]}"
         predis.publish :lines, msg_hash.to_json
       end
     end
