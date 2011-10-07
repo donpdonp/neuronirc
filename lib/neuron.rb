@@ -93,7 +93,7 @@ class Neuron
         regex = msg[:message].match(/[@=] (#.*) :(.*)/)
         channel = regex[1]
         nicks = regex[2].split
-        predis.smembers(channel).each {|m| predis.srem(channel, m)} #clean out
+        #predis.smembers(channel).each {|m| predis.srem(channel, m)} #clean out
         nicks.each {|nick| predis.sadd(channel, nick.sub('@',''))} #fill up
         known_nicks = predis.smembers(channel)
         puts "known nicks are #{known_nicks}"
@@ -137,14 +137,14 @@ class Neuron
       if msg[:command] == 'PART'
         nick = msg[:name].match(/(.*)!/)[1]
         puts "Parted #{msg[:message]} #{nick}"
-        predis.srem(msg[:message], nick.sub('@',''))
+        # predis.srem(msg[:message], nick.sub('@',''))
         predis.publish :lines, msg_hash.to_json
       end
 
       if msg[:command] == 'QUIT'
         nick = msg[:name].match(/(.*)!/)[1]
         puts "Quit #{nick}"
-        # remove from all channels
+        # todo: remove from all channels
         predis.publish :lines, msg_hash.to_json
       end
     end
