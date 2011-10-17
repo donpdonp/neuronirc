@@ -25,7 +25,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
     message = JSON.parse(json)
     puts "Heard #{message}"
     if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
-      expr = message["message"].match(/whats next/)
+      expr = message["message"].match(/what'?s next\??/)
       if expr
 
         checkins = fsq.recent_checkins
