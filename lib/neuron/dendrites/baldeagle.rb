@@ -24,7 +24,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
   on.message do |channel, json|
     message = JSON.parse(json)
     puts "Heard #{message}"
-    if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
+    if message["target"][0] == '#' && message["type"] == "emessage"
       expr = message["message"].match(/what'?s next\??/)
       if expr
 
@@ -59,14 +59,18 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
         puts "checking #{user["name"]} foursquare"
         fusers = fsq.search_users(:twitter => user["name"])
         if fusers.results.length > 0
-          fuser = fusers.results.first
-          seen = checkins.select{|c| c.user.id == fuser.id}
-          loc = seen.first
-          if loc
-            puts loc.inspect
-            msg += "I last saw you at \"#{loc.venue.name}\" #{Time.at(loc.createdAt).strftime("%b %e %I:%M%P")}. "
+          if fusers.results.length  == 1
+            fuser = fusers.results.first
+            seen = checkins.select{|c| c.user.id == fuser.id}
+            loc = seen.first
+            if loc
+              puts loc.inspect
+              msg += "I last saw you at \"#{loc.venue.name}\" #{Time.at(loc.createdAt).strftime("%b %e %I:%M%P")}. "
+            else
+              msg += "No recent 4sq checkin."
+            end
           else
-            msg += "No recent 4sq checkin."
+            msg += "username is ambiguous on 4sq. "
           end
         else
           msg += "No 4sq account found. "
