@@ -13,7 +13,7 @@ require 'httparty'
     on.message do |channel, json|
       message = JSON.parse(json)
       puts "Heard #{message}"
-      if message["target"][0] == '#' && message["type"] == "emessage"
+      if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
         expr = message["message"].match(/!?bitcoin\s?(.*)/)
         if expr
           puts "loading mtgox"
