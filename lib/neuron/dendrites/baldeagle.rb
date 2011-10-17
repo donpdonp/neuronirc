@@ -46,7 +46,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
             msg = "#{message["nick"]}: no plans in your plancast account. "
           end
         else
-          msg = "#{message["nick"]}: no plancast account found."
+          msg = "#{message["nick"]}: no plancast account found. "
         end
 
         # Present where/when
@@ -62,10 +62,14 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
           fuser = fusers.results.first
           seen = checkins.select{|c| c.user.id == fuser.id}
           loc = seen.first
-          puts loc.inspect
-          msg += "I last saw you at \"#{loc.venue.name}\" #{Time.at(loc.createdAt).strftime("%b %e %I:%M%P")}. "
+          if loc
+            puts loc.inspect
+            msg += "I last saw you at \"#{loc.venue.name}\" #{Time.at(loc.createdAt).strftime("%b %e %I:%M%P")}. "
+          else
+            msg += "No recent 4sq checkin."
+          end
         else
-          msg += "No recent 4sq checkin. "
+          msg += "No 4sq account found. "
         end
 
         if plan && loc
