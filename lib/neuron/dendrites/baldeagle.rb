@@ -43,8 +43,10 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
             puts plan.inspect
             msg = "#{message["nick"]}: \"#{plan["what"]}\" at \"#{plan["where"]}\" happens at  #{Time.at(plan["start"].to_i).strftime("%b %e %I:%M%P")}. "
           else
-            msg = "#{message["nick"]}: no plans found. "
+            msg = "#{message["nick"]}: no plans in your plancast account. "
           end
+        else
+          msg = "#{message["nick"]}: no plancast account found."
         end
 
         # Present where/when
