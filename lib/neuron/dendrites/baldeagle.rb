@@ -77,12 +77,10 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
           msg += "#{"%0.1f" % (distance/time_distance.to_f)} m/s needed to cover"
           msg += " #{distance/1000}km in" +
                 " #{"%0.1f" % (time_distance/60/60.0)} hours. "
-
-          puts msg
-          @predis.publish :say, {"command" => "say", 
-                                "target" => message["target"],
-                                "message" => msg}.to_json
         end
+        @predis.publish :say, {"command" => "say", 
+                              "target" => message["target"],
+                              "message" => msg}.to_json
       end                            
     end
   end
