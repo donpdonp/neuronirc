@@ -24,7 +24,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
   on.message do |channel, json|
     message = JSON.parse(json)
     puts "Heard #{message}"
-    if message["target"][0] == '#' && message["type"] == "emessage"
+    if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
       expr = message["message"].match(/what'?s next\??/)
       if expr
 
@@ -40,6 +40,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
         if plans["plans"]
           if plans["plans"].length > 0
             plan = plans["plans"].first
+            plan["start"] = plan["start"].to_i+(7*60*60) # plancast uses localtime oh noes
             puts plan.inspect
             msg = "#{message["nick"]}: \"#{plan["what"]}\" at \"#{plan["where"]}\" happens at  #{Time.at(plan["start"].to_i).strftime("%b %e %I:%M%P")}. "
           else
@@ -57,7 +58,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
         # geoloqi
         # foursquare
         puts "checking #{user["name"]} foursquare"
-        fusers = fsq.search_users(:twitter => user["name"])
+        fusers = fsq.search_users(:twitter => user["name"].downcase)
         if fusers.results.length > 0
           if fusers.results.length  == 1
             fuser = fusers.results.first
@@ -81,14 +82,16 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
           puts "#{plan["place"]["latitude"].to_f} #{plan["place"]["longitude"].to_f} - #{loc.venue.location.lat} #{loc.venue.location.lng}"
           distance = Haversine.distance(plan["place"]["latitude"].to_f, plan["place"]["longitude"].to_f, 
                                         loc.venue.location.lat, loc.venue.location.lng)
-          distance = distance.to_m.to_i
+          distance = distance.to_miles.to_i
           puts "#{Time.at(plan["start"])} #{Time.at(loc.createdAt)}"                                  
-          time_distance = plan["start"].to_i - loc.createdAt
-          msg += "#{"%0.1f" % (distance/time_distance.to_f)} m/s needed to cover"
-          msg += " #{distance/1000}km in" +
-                " #{"%0.1f" % (time_distance/60/60.0)} hours. "
+          #time_distance = plan["start"].to_i - loc.createdAt
+          time_distance = plan["start"].to_i - Time.now.to_i
+          time_distance_in_hours = time_distance/60/60.0
+          msg += "if you left now, #{"%0.1f" % (distance/time_distance_in_hours)} mph needed to cover"
+          msg += " #{distance}mi in" +
+                " #{"%0.1f" % (time_distance_in_hours)} hours. "
         end
-        @predis.publish :say, {"command" => "say", 
+        @predis.publish :say, {"command" => "say",
                               "target" => message["target"],
                               "message" => msg}.to_json
       end                            
