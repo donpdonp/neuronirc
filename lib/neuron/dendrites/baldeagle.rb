@@ -82,13 +82,13 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
           puts "#{plan["place"]["latitude"].to_f} #{plan["place"]["longitude"].to_f} - #{loc.venue.location.lat} #{loc.venue.location.lng}"
           distance = Haversine.distance(plan["place"]["latitude"].to_f, plan["place"]["longitude"].to_f, 
                                         loc.venue.location.lat, loc.venue.location.lng)
-          distance = distance.to_miles.to_i
+          distance = distance.to_miles.to_f
           puts "#{Time.at(plan["start"])} #{Time.at(loc.createdAt)}"                                  
           #time_distance = plan["start"].to_i - loc.createdAt
           time_distance = plan["start"].to_i - Time.now.to_i
           time_distance_in_hours = time_distance/60/60.0
           msg += "if you left now, #{"%0.1f" % (distance/time_distance_in_hours)} mph needed to cover"
-          msg += " #{distance}mi in" +
+          msg += " #{"%0.1f" % distance}mi in" +
                 " #{"%0.1f" % (time_distance_in_hours)} hours. "
         end
         @predis.publish :say, {"command" => "say",
