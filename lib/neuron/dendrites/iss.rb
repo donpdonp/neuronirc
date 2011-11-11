@@ -25,7 +25,7 @@ class Iss
         else
           msg = "min_left #{min_left}"
         end
-        sleep 3000
+        sleep 300
       end
     end
 
