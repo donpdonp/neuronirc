@@ -40,7 +40,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
         if plans["plans"]
           if plans["plans"].length > 0
             plan = plans["plans"].first
-            plan["start"] = plan["start"].to_i+(7*60*60) # plancast uses localtime oh noes
+            plan["start"] = plan["start"].to_i+(8*60*60) # plancast uses localtime oh noes
             puts plan.inspect
             msg = "#{message["nick"]}: \"#{plan["what"]}\" at \"#{plan["where"]}\" happens at  #{Time.at(plan["start"].to_i).strftime("%b %e %I:%M%P")}. "
           else
