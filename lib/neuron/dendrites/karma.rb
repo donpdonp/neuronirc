@@ -16,8 +16,9 @@ require 'json'
         expr = message["message"].match(/!?karma ?(\w+)?/)
         if expr
           count = expr[1] ? expr[1].to_i : 1
-          count.times do
-            msg = "#{message["nick"]}++"
+          k = count > 0 ? "++" : "--"
+          count.abs.times do
+            msg = "#{message["nick"]}#{k}"
             predis.publish :say, {"command" => "say", 
                                   "target" => message["target"], 
                                   "message" => msg}.to_json
