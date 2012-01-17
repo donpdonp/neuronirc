@@ -17,8 +17,8 @@ require 'json'
         if expr
           count = expr[1] ? expr[1].to_i : 1
           k = count > 0 ? "++" : "--"
-          count = 5 if count.abs > 5
-          count = -5 if count.abs < -5
+          count = 2 if count > 2
+          count = -2 if count < -2
           count.abs.times do
             msg = "#{message["nick"]}#{k}"
             predis.publish :say, {"command" => "say", 
