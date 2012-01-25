@@ -18,16 +18,21 @@ require 'csv'
         expr = message["message"].match(/^!?(quote|stock)\s+(.+)/)
         if expr
           symbol = expr[2]
-          puts "Searching for stock symbol #{symbol}"
-          csv = Faraday.get {|r| r.url "http://download.finance.yahoo.com/d/quotes", :symbol=>symbol, :f => "snl1"}
-          msg = ""
-          CSV.parse(csv.body) do |row|
-            if row[2].to_i > 0
-              msg += "#{row[0]} #{row[1]} $#{row[2]} "
-            else
-              msg += "#{row[0]}: nothing"
-            end
+          puts "Searching YQL for stock symbol #{symbol}"
+          csv = Faraday.get do|r| 
+            r.url "http://query.yahooapis.com/v1/public/yql", 
+            :q=>"select * from yahoo.finance.quotes where symbol in (#{symbol.to_json})", 
+            :env=>'http://datatables.org/alltables.env', 
+            :format=>'json'
           end
+          msg = ""
+          response=JSON.parse(csv.body)
+          q = response["query"]["results"]["quote"]
+          msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
+                  "last: #{q["LastTradePriceOnly"]}",
+                  "avg. daily volume: #{q["AverageDailyVolume"]}",
+                  "market cap: #{q["MarketCapitalization"]}"
+                 ].join(' ')
           if message["to_me"] == "true"
             msg = "#{message["nick"]}: #{msg}"
           end
