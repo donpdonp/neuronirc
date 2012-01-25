@@ -29,9 +29,9 @@ require 'csv'
           response=JSON.parse(csv.body)
           q = response["query"]["results"]["quote"]
           msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
-                  "last: #{q["LastTradePriceOnly"]}",
+                  "last: $#{q["LastTradePriceOnly"]}",
                   "avg. daily volume: #{q["AverageDailyVolume"]}",
-                  "market cap: #{q["MarketCapitalization"]}"
+                  "market cap: $#{q["MarketCapitalization"]}"
                  ].join(' ')
           if message["to_me"] == "true"
             msg = "#{message["nick"]}: #{msg}"
