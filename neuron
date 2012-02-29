@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+require 'bundler'
+Bundler.setup
 require 'bluepill'
 require 'redis'
 require 'json'
