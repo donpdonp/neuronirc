@@ -30,15 +30,19 @@ class Neuron
     Thread.new do
       listen_redis
     end
+    Thread.new do
+      ping_monitor
+    end
     listen_irc
   end
 
   def connect_irc
     puts "Connecting to #{SETTINGS["server"]}"
     @irc.connect
-    @irc.nick SETTINGS["nick"] 
+    @irc.nick SETTINGS["nick"]
     @irc.user SETTINGS["nick"], 0, "*", "Neuron Bot"
     puts "Connected as #{SETTINGS["nick"]}"
+    @last_ping = Time.now
   end
 
   def listen_redis
@@ -74,7 +78,7 @@ class Neuron
       end
     end
   end
-    
+
   def listen_irc
     predis = Redis.new
     while line = @irc.read
@@ -110,6 +114,7 @@ class Neuron
       end
 
       if msg[:command] == 'PING'
+        @last_ping = Time.now
         @irc.pong(msg[:message])
       end
 
@@ -146,6 +151,15 @@ class Neuron
         puts "Quit #{nick}"
         # todo: remove from all channels
         predis.publish :lines, msg_hash.to_json
+      end
+    end
+  end
+
+  def ping_monitor
+    while true
+      sleep 30
+      if Time.now - @last_ping > 300
+        puts "Ping timeout!"
       end
     end
   end
