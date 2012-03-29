@@ -49,6 +49,9 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
           else
             msg = answer
           end
+          if message["to_me"] == "true"
+            msg = "#{message["nick"]}: "+msg
+          end
           predis.publish :say, {"command" => "say",
                                 "target" => message["target"],
                                 "message" => msg}.to_json
