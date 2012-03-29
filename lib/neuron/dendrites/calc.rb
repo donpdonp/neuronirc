@@ -43,7 +43,8 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
           result = xml.xpath("/queryresult/pod[@title='Result']/subpod/plaintext")
           eresult = xml.xpath("/queryresult/pod[@title='Mixed fraction']/subpod/plaintext")
           solution = xml.xpath("/queryresult/pod[@title='Solution']/subpod/plaintext")
-          answer = "#{result.text}#{eresult.text}#{solution.text}"
+          average = xml.xpath("/queryresult/pod[@title='Average result']/subpod/plaintext")
+          answer = "#{result.text}#{eresult.text}#{solution.text}#{average.text}"
           if answer.blank?
             msg = "cant say"
           else
