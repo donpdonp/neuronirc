@@ -41,7 +41,7 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
                                  "appid" => SETTINGS['wolfram']['appid']}
           xml = Nokogiri::XML(answer.body)
           result = xml.xpath("/queryresult/pod[@title='Result']/subpod/plaintext")
-          eresult = xml.xpath("/queryresult/pod[@title='Exact Result']/subpod/plaintext")
+          eresult = xml.xpath("/queryresult/pod[@title='Mixed fraction']/subpod/plaintext")
           solution = xml.xpath("/queryresult/pod[@title='Solution']/subpod/plaintext")
           answer = "#{result.text}#{eresult.text}#{solution.text}"
           if answer.blank?
