@@ -32,7 +32,7 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
                                 "message" => msg}.to_json unless answer.nil?
         end
 
-        solve = message["message"].match(/!?solve\s+(.*)/)
+        solve = message["message"].match(/^\s*!?solve\s+(.*)/)
         if solve && solve.captures.size > 0
           query = solve.captures[0]
           puts "Wolfram Alpha query: #{query}"
