@@ -46,7 +46,7 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
           average = xml.xpath("/queryresult/pod[@title='Average result']/subpod/plaintext")
           answer = "#{result.text}#{eresult.text}#{solution.text}#{average.text}"
           if answer.blank?
-            msg = "cant say"
+            msg = "there is no easy answer to \"#{query}\""
           else
             msg = answer
           end
