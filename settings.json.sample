@@ -1,3 +1,4 @@
 { "server" : "irc.freenode.net",
+  "timeout" : 150, /* in seconds */
   "nick"   : "neuronbot"
 }

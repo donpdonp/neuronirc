@@ -18,7 +18,6 @@ class Neuron
   end
 
   def initialize
-    @irc = IRCSocket.new(SETTINGS["server"])
     opts = {:base_dir => File.join(BASE_DIR,".bluepill"),
             :log_file => File.join(LOG_DIR,"bluepill")}
     @bluepill = Bluepill::Controller.new(opts)
@@ -26,14 +25,17 @@ class Neuron
   end
 
   def go
-    connect_irc
     Thread.new do
       listen_redis
     end
     Thread.new do
       ping_monitor
     end
-    listen_irc
+    while true
+      @irc = IRCSocket.new(SETTINGS["server"])
+      connect_irc
+      listen_irc
+    end
   end
 
   def connect_irc
@@ -158,8 +160,10 @@ class Neuron
   def ping_monitor
     while true
       sleep 30
-      if Time.now - @last_ping > 300
-        puts "Ping timeout!"
+      last_ping_at = Time.now - @last_ping
+      if last_ping_at > SETTINGS["timeout"]
+        puts "Ping timeout! Closing socket."
+        @irc.close
       end
     end
   end
