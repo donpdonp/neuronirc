@@ -42,7 +42,6 @@ end
 if ARGV[0] == 'start'
   unless running
     cmd = "bundle exec bluepill load neuron.pill --no-privileged --base-dir #{opts[:base_dir]} --logfile #{opts[:log_file]}"
-    $stderr.puts cmd
     system(cmd)
   end
   controller.handle_command('neuron', 'start', ARGV[1])

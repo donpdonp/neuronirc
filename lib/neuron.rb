@@ -69,9 +69,9 @@ class Neuron
             @irc.privmsg(message['target'], message['message'])
           end
           if message["command"] == "join"
-            puts "Joining #{message['message']}"
-            @joining_channel = message['message']
-            @irc.join(message['message'])
+            @joining_channel = "#"+message['message']
+            puts "Joining #{@joining_channel}"
+            @irc.join(@joining_channel)
           end
           if message["command"] == "part"
             puts "Parting #{message['message']}"
