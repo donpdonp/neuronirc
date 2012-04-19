@@ -101,6 +101,9 @@ class Neuron
         puts predis.smembers('channels').inspect
         predis.set('nick', SETTINGS["nick"])
         predis.publish :lines, msg_hash.to_json
+        predis.smembers('channels').each do |channel|
+          @irc.join(channel)
+        end
       end
 
       if msg[:command] == '353' # channel nick list
