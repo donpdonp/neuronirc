@@ -98,10 +98,10 @@ class Neuron
 
       if msg[:command] == '376' # end of MOTD
         puts "Ready"
-        puts predis.smembers('channels').inspect
         predis.set('nick', SETTINGS["nick"])
         predis.publish :lines, msg_hash.to_json
         predis.smembers('channels').each do |channel|
+          puts "rejoining #{channel}"
           @irc.join(channel)
         end
       end
