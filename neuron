@@ -72,11 +72,11 @@ end
 
 # Send the command to the bot
 if ARGV.size == 2
-  msg = {"command" => ARGV[0], "message" => ARGV[1]}
+  msg = {"command" => ARGV[0], "message" => "##{ARGV[1]}"}
 end
 
 if ARGV.size == 3
-  msg = {"command" => ARGV[0], "target" => ARGV[1], "message" => ARGV[2]}
+  msg = {"command" => ARGV[0], "target" => "##{ARGV[1]}", "message" => ARGV[2]}
 end
 
 if msg
