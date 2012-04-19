@@ -15,6 +15,7 @@ class Neuron
   def self.start
     bot = Neuron.new
     bot.go
+    puts "Exiting."
   end
 
   def initialize
@@ -25,6 +26,7 @@ class Neuron
   end
 
   def go
+    reset_redis
     Thread.new do
       listen_redis
     end
@@ -36,6 +38,11 @@ class Neuron
       connect_irc
       listen_irc
     end
+  end
+
+  def reset_redis
+    predis = Redis.new
+    predis.del 'channels'
   end
 
   def connect_irc
@@ -89,13 +96,24 @@ class Neuron
       msg_hash = {name:msg[:name], command:msg[:command], target:msg[:target], message:msg[:message]}
       puts line
 
-      if msg[:command] == '376'
+      if msg[:command] == '376' # end of MOTD
         puts "Ready"
+        puts predis.smembers('channels').inspect
         predis.set('nick', SETTINGS["nick"])
         predis.publish :lines, msg_hash.to_json
       end
 
-      if msg[:command] == '353'
+      if msg[:command] == '332' # joined channel
+        puts msg[:message].inspect
+        regex = msg[:message].match(/(#[^ ]*) :(.*)/)
+        channel = regex[1]
+        topic = regex[2]
+        puts "joined #{channel}"
+        predis.sadd('channels', channel)
+        puts "currently in "+predis.smembers('channels').inspect
+      end
+
+      if msg[:command] == '353' # channel nick list
         regex = msg[:message].match(/[@=] (#.*) :(.*)/)
         channel = regex[1]
         nicks = regex[2].split
@@ -105,7 +123,7 @@ class Neuron
         puts "known nicks are #{known_nicks}"
       end
 
-      if msg[:command] == '366'
+      if msg[:command] == '366' # channel nick list done
         puts "end channel nick list for #{msg[:target]}: #{msg[:message]}"
         @joining_channel = nil
       end
@@ -145,7 +163,9 @@ class Neuron
         nick = msg[:name].match(/(.*)!/)[1]
         puts "Parted #{msg[:message]} #{nick}"
         # predis.srem(msg[:message], nick.sub('@',''))
+        predis.srem('channels', msg[:message])
         predis.publish :lines, msg_hash.to_json
+        puts "currently in "+predis.smembers('channels').inspect
       end
 
       if msg[:command] == 'QUIT'
