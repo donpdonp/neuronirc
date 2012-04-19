@@ -33,7 +33,7 @@ running = controller.running_applications.include?('neuron')
 
 if ARGV.size == 0
   if running
-    puts "neuron is running as nick: #{redis.get('nick')}"
+    puts "neuron is running as nick: #{redis.get('nick')} in channels #{redis.smembers('channels')}"
   end
   controller.handle_command('neuron', 'status')
 end

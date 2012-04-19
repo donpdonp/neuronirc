@@ -103,16 +103,6 @@ class Neuron
         predis.publish :lines, msg_hash.to_json
       end
 
-      if msg[:command] == '332' # joined channel
-        puts msg[:message].inspect
-        regex = msg[:message].match(/(#[^ ]*) :(.*)/)
-        channel = regex[1]
-        topic = regex[2]
-        puts "joined #{channel}"
-        predis.sadd('channels', channel)
-        puts "currently in "+predis.smembers('channels').inspect
-      end
-
       if msg[:command] == '353' # channel nick list
         regex = msg[:message].match(/[@=] (#.*) :(.*)/)
         channel = regex[1]
@@ -156,6 +146,8 @@ class Neuron
         nick = msg[:name].match(/(.*)!/)[1]
         puts "Joined #{msg[:message]} #{nick}"
         predis.sadd(msg[:message], nick.sub('@',''))
+        predis.sadd('channels', msg[:message])
+        puts "currently in "+predis.smembers('channels').inspect
         predis.publish :lines, msg_hash.to_json
       end
 
