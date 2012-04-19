@@ -65,8 +65,9 @@ class Neuron
           puts "redis receive: #{message}"
 
           if message["command"] == "say"
-            puts "Saying #{message['message']} on #{message['target']}"
-            @irc.privmsg(message['target'], message['message'])
+            channel = "#"+message['target']
+            puts "Saying #{message['message']} on #{channel}"
+            @irc.privmsg(channel, message['message'])
           end
           if message["command"] == "join"
             @joining_channel = "#"+message['message']
@@ -74,8 +75,9 @@ class Neuron
             @irc.join(@joining_channel)
           end
           if message["command"] == "part"
-            puts "Parting #{message['message']}"
-            @irc.part(message['message'])
+            channel = "#"+message['message']
+            puts "Parting #{channel}"
+            @irc.part(channel)
           end
           if message["command"] == "nick"
             puts "Changing nick #{message['message']}"
