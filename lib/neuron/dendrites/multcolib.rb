@@ -77,7 +77,7 @@ redis.subscribe(:lines) do |on|
               "message" => msg}.to_json
           end
         else
-          msg ="no creds! /msg #{predis.get('nick')} auth <card no> <pin>"
+          msg ="no creds! /msg #{predis.get('nick')} library auth <card no> <pin>"
           predis.publish :say, {"command" => "say",
             "target" => target,
             "message" => msg}.to_json
