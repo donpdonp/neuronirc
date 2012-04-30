@@ -35,8 +35,12 @@ class Neuron
     end
     while true
       @irc = IRCSocket.new(SETTINGS["server"])
-      connect_irc
-      listen_irc
+      begin
+        connect_irc
+        listen_irc
+      rescue SocketError
+        sleep 10
+      end
     end
   end
 
