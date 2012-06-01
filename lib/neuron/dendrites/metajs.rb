@@ -3,6 +3,7 @@ require 'redis'
 require 'json'
 require 'neuron/dendrite'
 require 'v8'
+require 'httparty'
 
 STDOUT.sync = true
 
@@ -12,6 +13,7 @@ class Metajs
   def go
     setup
     v8 = V8::Context.new
+    v8['http'] = HTTParty
     redis = Redis.new
     credis = Redis.new
     credis.del('functions') # clean out possible DOS functions
