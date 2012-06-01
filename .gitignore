@@ -2,3 +2,6 @@ settings.json
 bluepill.log
 .bluepill/
 log/*
+.bundle/
+gems/
+bin/
