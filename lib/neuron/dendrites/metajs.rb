@@ -14,6 +14,7 @@ class Metajs
     v8 = V8::Context.new
     redis = Redis.new
     credis = Redis.new
+    credis.del('functions') # clean out possible DOS functions
     redis.subscribe(:lines) do |on|
       on.subscribe do |channel, subscriptions|
         puts "Subscribed to ##{channel} (#{subscriptions} subscriptions)"
@@ -44,8 +45,7 @@ class Metajs
 
             if match = message["message"].match(/^responder wipe$/)
               credis.del('functions')
-              # run it through the defined functions
-              # say the result
+              msg = "all functions wiped"
               @redis.publish :say, {"command" => "say",
                                     "target" => message["target"],
                                     "message" => msg}.to_json

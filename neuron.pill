@@ -19,6 +19,7 @@ Bluepill.application("neuron", {:base_dir => File.join(BASE_DIR,".bluepill"),
       process.pid_file = "#{BASE_DIR}/.bluepill/pids/neuron/dendrite-#{dendrite}.pid"
       process.daemonize = true
       process.stdout = process.stderr = File.join(BASE_DIR,"log/#{dendrite}")
+      process.checks :cpu_usage, :every => 10.seconds, :below => 50, :times => 3
     end  
   end
 end
