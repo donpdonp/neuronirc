@@ -51,6 +51,7 @@ class Metajs
               @redis.publish :say, {"command" => "say",
                                     "target" => message["target"],
                                     "message" => msg}.to_json
+              return
             end
 
             if match = message["message"].match(/^responder (.*)/)
@@ -65,6 +66,10 @@ class Metajs
                 @redis.publish :say, {"command" => "say",
                                       "target" => message["target"],
                                       "message" => msg}.to_json
+              rescue NoMethodError => e
+                @redis.publish :say, {"command" => "say",
+                                      "target" => message["target"],
+                                      "message" => e.to_s}.to_json
               rescue V8::JSError => e
                 @redis.publish :say, {"command" => "say",
                                       "target" => message["target"],
