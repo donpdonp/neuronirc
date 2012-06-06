@@ -30,9 +30,11 @@ require 'csv'
           q = response["query"]["results"]["quote"]
           puts q.inspect
           msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
+                  "open: $#{q["Open"]}"
                   "last: $#{q["LastTradePriceOnly"]}",
-                  "avg. daily volume: #{q["AverageDailyVolume"]}",
-                  "market cap: $#{q["MarketCapitalization"]}"
+                  "P/E: #{q["PERatio"]}",
+                  "market cap: $#{q["MarketCapitalization"]}",
+                  "(#{q["StockExchange"]})"
                  ].join(' ')
           if message["to_me"] == "true"
             msg = "#{message["nick"]}: #{msg}"
