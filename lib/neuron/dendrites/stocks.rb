@@ -30,7 +30,7 @@ require 'csv'
           q = response["query"]["results"]["quote"]
           puts q.inspect
           msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
-                  "open: $#{q["Open"]}"
+                  "open: $#{q["Open"]}",
                   "last: $#{q["LastTradePriceOnly"]}",
                   "P/E: #{q["PERatio"]}",
                   "market cap: $#{q["MarketCapitalization"]}",
