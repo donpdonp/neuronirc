@@ -14,7 +14,7 @@ require 'csv'
     on.message do |channel, json|
       message = JSON.parse(json)
       puts "Heard #{message}"
-      if message["type"] == "emessage" && message["target"][0] == '#'
+      if message["type"] == "emessage" && message["target"] && message["target"][0] == '#'
         expr = message["message"].match(/^!?(quote|stock)\s+(.+)/)
         if expr
           symbol = expr[2]
