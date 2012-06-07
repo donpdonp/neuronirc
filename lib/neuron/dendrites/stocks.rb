@@ -28,18 +28,21 @@ require 'csv'
           msg = ""
           response=JSON.parse(csv.body)
           puts response.inspect
-          q = response["query"]["results"]["quote"]
-          msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
-                  "open: $#{q["Open"]}",
-                  "last: $#{q["LastTradePriceOnly"]}",
-                  "P/E: #{q["PERatio"]}",
-                  "market cap: $#{q["MarketCapitalization"]}",
-                  "(#{q["StockExchange"]})"
-                 ].join(' ')
-          if message["to_me"] == "true"
-            msg = "#{message["nick"]}: #{msg}"
+          if response["query"]["results"]
+            q = response["query"]["results"]["quote"]
+            msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
+                    "open: $#{q["Open"]}",
+                    "last: $#{q["LastTradePriceOnly"]}",
+                    "P/E: #{q["PERatio"]}",
+                    "market cap: $#{q["MarketCapitalization"]}",
+                    "(#{q["StockExchange"]})"
+                   ].join(' ')
+            if message["to_me"] == "true"
+              msg = "#{message["nick"]}: #{msg}"
+            end
+          else
+            msg = "yahoo choked: #{response.inspect}"
           end
-
           predis.publish :say, {"command" => "say",
                                 "target" => message["target"],
                                 "message" => msg}.to_json unless csv.nil?
