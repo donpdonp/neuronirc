@@ -27,8 +27,8 @@ require 'csv'
           end
           msg = ""
           response=JSON.parse(csv.body)
+          puts response.inspect
           q = response["query"]["results"]["quote"]
-          puts q.inspect
           msg += ["#{q["Symbol"]} \"#{q["Name"]}\"",
                   "open: $#{q["Open"]}",
                   "last: $#{q["LastTradePriceOnly"]}",
