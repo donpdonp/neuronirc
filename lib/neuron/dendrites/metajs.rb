@@ -27,7 +27,7 @@ class Metajs
         message = JSON.parse(json)
         puts "Heard #{message}"
         if message["type"] == "emessage"
-          if message["target"] && message["target"][0] == '#'
+          if message["command"] == "PRIVMSG"
             funcs = credis.lrange('functions', 0, credis.llen('functions'))
             funcs.each {|js| exec_js(js) }
 
