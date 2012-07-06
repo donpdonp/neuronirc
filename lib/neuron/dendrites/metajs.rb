@@ -44,6 +44,9 @@ class Metajs
                 end
               rescue V8::JSError => e
                 puts "Error: #{e}"
+                @redis.publish :say, {"command" => "say",
+                                      "target" => message["target"],
+                                      "message" => e.to_s}.to_json
               end
             end
 
