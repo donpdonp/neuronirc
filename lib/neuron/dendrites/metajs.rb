@@ -97,23 +97,18 @@ end
 
 class MyHttp
   def get(url)
-    begin
-      uri = URI(url)
-      if uri.scheme == "https"
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    uri = URI(url)
+    if uri.scheme == "https"
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-        request = Net::HTTP::Get.new(uri.request_uri)
+      request = Net::HTTP::Get.new(uri.request_uri)
 
-        response = http.request(request)
-        resp = response.body
-      else
-        resp = Net::HTTP.get(URI(url))
-      end
-      JSON.parse(resp)
-    rescue JSON::ParserError => e
-      {:error => e.to_s}
+      response = http.request(request)
+      response.body
+    else
+      Net::HTTP.get(URI(url))
     end
   end
 end
