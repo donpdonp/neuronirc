@@ -4,6 +4,7 @@ require 'json'
 require 'neuron/dendrite'
 require 'v8'
 require 'httparty'
+require 'net/https'
 
 STDOUT.sync = true
 
@@ -13,7 +14,8 @@ class Metajs
   def go
     setup
     v8 = V8::Context.new
-    v8['http'] = HTTParty
+    v8['http'] = MyHttp.new
+
     redis = Redis.new
     credis = Redis.new
     credis.del('functions') # clean out possible DOS functions
@@ -89,6 +91,29 @@ class Metajs
           end
         end
       end
+    end
+  end
+end
+
+class MyHttp
+  def get(url)
+    begin
+      uri = URI(url)
+      if uri.scheme == "https"
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+        request = Net::HTTP::Get.new(uri.request_uri)
+
+        response = http.request(request)
+        resp = response.body
+      else
+        resp = Net::HTTP.get(URI(url))
+      end
+      JSON.parse(resp)
+    rescue JSON::ParserError => e
+      {:error => e.to_s}
     end
   end
 end
