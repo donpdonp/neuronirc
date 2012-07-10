@@ -13,16 +13,16 @@ require 'httparty'
     on.message do |channel, json|
       message = JSON.parse(json)
       puts "Heard #{message}"
-      if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
-        expr = message["message"].match(/!?bitcoin\s?(.*)/)
+      if message["type"] == "emessage" && message["command"] == "PRIVMSG"
+        expr = message["message"].match(/^bitcoin\s?(.*)/)
         if expr
           puts "loading mtgox"
           ticker = HTTParty.get("https://mtgox.com/api/0/data/ticker.php",
                                 :headers => {"user-agent"=>"neuroirc"})
 
-          predis.publish :say, {"command" => "say", 
-                                "target" => message["target"], 
-                                "message" => "mtgox last $#{ticker["ticker"]["last"]}"}.to_json
+          predis.publish :say, {"command" => "say",
+                                "target" => message["target"],
+                                "message" => "BTC mtgox last $#{ticker["ticker"]["last"]} 24hr volume #{ticker["ticker"]["vol"]}BTC"}.to_json
         end
       end
     end
