@@ -16,13 +16,13 @@ require 'httparty'
       if message["type"] == "emessage" && message["command"] == "PRIVMSG"
         expr = message["message"].match(/^bitcoin\s?(.*)/)
         if expr
-          if message["to_me"] == "true"
-            msg = "#{message["nick"]}: "+msg
-          end
           puts "loading mtgox"
           ticker = HTTParty.get("https://mtgox.com/api/0/data/ticker.php",
                                 :headers => {"user-agent"=>"neuroirc"})
-          msg = msg + "Bitcoin report - last $#{ticker["ticker"]["last"]}(mtgox). 24hr volume #{ticker["ticker"]["vol"]} btc"
+          msg = "Bitcoin report - last $#{ticker["ticker"]["last"]}(mtgox). 24hr volume #{ticker["ticker"]["vol"]} btc"
+          if message["to_me"] == "true"
+            msg = "#{message["nick"]}: "+msg
+          end
           predis.publish :say, {"command" => "say",
                                 "target" => message["target"],
                                 "message" => msg}.to_json
