@@ -19,7 +19,11 @@ require 'httparty'
           puts "loading mtgox"
           ticker = HTTParty.get("https://mtgox.com/api/0/data/ticker.php",
                                 :headers => {"user-agent"=>"neuroirc"})
-          msg = "Bitcoin report - last $#{ticker["ticker"]["last"]}(mtgox). 24hr volume #{ticker["ticker"]["vol"]} btc"
+          if ticker
+            msg = "Bitcoin report - last $#{ticker["ticker"]["last"]}(mtgox). 24hr volume #{ticker["ticker"]["vol"]} btc"
+          else
+            msg = "mtgox api fail."
+          end
           if message["to_me"] == "true"
             msg = "#{message["nick"]}: "+msg
           end
