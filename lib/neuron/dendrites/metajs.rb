@@ -26,17 +26,19 @@ class Metajs
         puts "Heard #{message}"
         if message["type"] == "emessage"
           if message["command"] == "PRIVMSG"
-            funcs = @redis.lrange('functions', 0, @redis.llen('functions'))
-            funcs.map!{|f| JSON.parse(f) if f.length > 0}
-            funcs.each {|js| exec_js(v8, js, message) if js}
+            raw_funcs = @redis.lrange('functions', 0, @redis.llen('functions'))
+            funcs = raw_funcs.map{|f| JSON.parse(f)}
+            puts funcs.inspect
 
             match = message["message"].match(/^js (\w+) ?(.*)?$/)
             if match
               case match.captures.first
               when "wipe"
                 funcs.each_with_index do |f, idx|
-                  @redis.lset('functions', idx, "") if f["nick"] == message["nick"]
-                  say(message["target"], "#{message["nick"]} wiped #{f["name"]}")
+                  if f["nick"] == message["nick"]
+                    @redis.lrem('functions', 0, raw_funcs[idx])
+                    say(message["target"], "#{message["nick"]} wiped #{f["name"]}")
+                  end
                 end
               when "add"
                 cmd = match.captures.last.match(/(\w+) (.*)/)
@@ -52,12 +54,13 @@ class Metajs
                 end
               when "list"
                 # run it through the defined functions
-                list = funcs.map{|f| "#{f["nick"]}/#{f["name"]}"}
+                list = funcs.select{|f| f}.map{|f| "#{f["nick"]}/#{f["name"]}"}
                 msg = "funcs: #{list.inspect}"
                 # say the result
                 say(message["target"], msg)
               end
             end
+            funcs.each {|f| exec_js(v8, f["code"], message)}
           end
         end
       end
@@ -66,8 +69,8 @@ class Metajs
 
   def exec_js(v8, js, message)
     begin
-      func = "(#{js["code"]})(#{message["message"].to_json})"
-      puts "eval: #{func}"
+      func = "(#{js})(#{message["message"].to_json})"
+      puts "exec_js: #{func}"
       response = v8.eval(func)
       puts "response: #{response}"
       if response.to_s.length > 0
