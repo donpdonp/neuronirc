@@ -37,12 +37,19 @@ class Metajs
                 funcs.each_with_index do |f, idx|
                   if f["nick"] == message["nick"]
                     @redis.lrem('functions', 0, raw_funcs[idx])
-                    say(message["target"], "#{message["nick"]} wiped #{f["name"]}")
+                    say(message["target"], "#{message["nick"]}: wiped method #{f["name"]}")
                   end
+                end
+              when "del"
+                cmd = match.captures.last.match(/(\w+)/)
+                if cmd
+                  fname = cmd.captures.first
+                  js_del_by_name(raw_funcs, funcs, fname, message)
                 end
               when "add"
                 cmd = match.captures.last.match(/(\w+) (.*)/)
                 name = cmd.captures.first
+                js_del_by_name(raw_funcs, funcs, name, message)
                 code = cmd.captures.last
                 if code.match(/^http/)
                   request = HTTParty.get(code)
@@ -56,7 +63,7 @@ class Metajs
                 (ok, err) = js_check(code, v8)
                 if ok
                   add_js(message["nick"], name, code)
-                  msg = "added method #{name}"
+                  msg = "added method #{name} (#{code.length} bytes)"
                   say(message["target"],msg)
                 else
                   say(message["target"], err.to_s)
@@ -112,6 +119,15 @@ class Metajs
       jmethod = {nick: nick, name: name, code: code}
       puts jmethod.inspect
       @redis.rpush('functions', jmethod.to_json)
+  end
+
+  def js_del_by_name(raw_funcs, funcs, name, message)
+    funcs.each_with_index do |f, idx|
+      if f["name"] == name && f["nick"] == message["nick"]
+        @redis.lrem('functions', 0, raw_funcs[idx])
+        say(message["target"], "#{message["nick"]}: wiped method #{name}")
+      end
+    end
   end
 end
 
