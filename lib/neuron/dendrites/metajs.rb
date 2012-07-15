@@ -16,59 +16,46 @@ class Metajs
     v8 = V8::Context.new
     v8['http'] = MyHttp.new
 
-    redis = Redis.new
-    credis = Redis.new
-    credis.del('functions') # clean out possible DOS functions
-    redis.subscribe(:lines) do |on|
+    Redis.new.subscribe(:lines) do |on|
       on.subscribe do |channel, subscriptions|
-        puts "Subscribed to ##{channel} (#{subscriptions} subscriptions)"
+        puts "Subscribed to ##{channel}"
       end
+
       on.message do |channel, json|
         message = JSON.parse(json)
         puts "Heard #{message}"
         if message["type"] == "emessage"
           if message["command"] == "PRIVMSG"
-            funcs = credis.lrange('functions', 0, credis.llen('functions'))
-            funcs.each {|js| exec_js(js) }
+            funcs = @redis.lrange('functions', 0, @redis.llen('functions'))
+            funcs.map!{|f| JSON.parse(f) if f.length > 0}
+            funcs.each {|js| exec_js(v8, js, message) if js}
 
-            match = message["message"].match(/^js (.*)$/)
+            match = message["message"].match(/^js (\w+) ?(.*)?$/)
             if match
               case match.captures.first
               when "wipe"
-                credis.del('functions')
-                msg = "all functions wiped"
-                @redis.publish :say, {"command" => "say",
-                                      "target" => message["target"],
-                                      "message" => msg}.to_json
-                return
+                funcs.each_with_index do |f, idx|
+                  @redis.lset('functions', idx, "") if f["nick"] == message["nick"]
+                  say(message["target"], "#{message["nick"]} wiped #{f["name"]}")
+                end
               when "add"
-                begin
-                  func = "(#{match.captures.first})()"
-                  puts "add parsing: #{func}"
-                  response = v8.eval(func)
-                  msg = "adding #{match.captures.first}"
-                  credis.rpush('functions', match.captures.first)
-                  # run it through the defined functions
-                  # say the result
-                  @redis.publish :say, {"command" => "say",
-                                        "target" => message["target"],
-                                        "message" => msg}.to_json
-                rescue NoMethodError => e
-                  @redis.publish :say, {"command" => "say",
-                                        "target" => message["target"],
-                                        "message" => e.to_s}.to_json
-                rescue V8::JSError => e
-                  @redis.publish :say, {"command" => "say",
-                                        "target" => message["target"],
-                                        "message" => e.to_s}.to_json
+                cmd = match.captures.last.match(/(\w+) (.*)/)
+                name = cmd.captures.first
+                code = cmd.captures.last
+                (ok, err) = js_check(cmd.captures.last, v8)
+                if ok
+                  add_js(message["nick"], name, code)
+                  msg = "added method #{name}"
+                  say(message["target"],msg)
+                else
+                  say(message["target"], err.to_s)
                 end
               when "list"
-                msg = "funcs #{funcs.inspect}"
                 # run it through the defined functions
+                list = funcs.map{|f| "#{f["nick"]}/#{f["name"]}"}
+                msg = "funcs: #{list.inspect}"
                 # say the result
-                @redis.publish :say, {"command" => "say",
-                                      "target" => message["target"],
-                                      "message" => msg}.to_json
+                say(message["target"], msg)
               end
             end
           end
@@ -77,12 +64,12 @@ class Metajs
     end
   end
 
-  def exec_js(js)
+  def exec_js(v8, js, message)
     begin
-      func = "(#{func})(#{message["message"].to_json})"
-      puts "parsing: #{func}"
+      func = "(#{js["code"]})(#{message["message"].to_json})"
+      puts "eval: #{func}"
       response = v8.eval(func)
-      puts "got: #{response}"
+      puts "response: #{response}"
       if response.to_s.length > 0
         @redis.publish :say, {"command" => "say",
                               "target" => message["target"],
@@ -96,6 +83,24 @@ class Metajs
     end
   end
 
+  def js_check(code, v8)
+    begin
+      func = "(#{code})()"
+      puts "checking: #{func}"
+      response = v8.eval(func) #syntax check
+      return true
+    rescue NoMethodError => e
+      return [false, e]
+    rescue V8::JSError => e
+      return [false, e]
+    end
+  end
+
+  def add_js(nick, name, code)
+      jmethod = {nick: nick, name: name, code: code}
+      puts jmethod.inspect
+      @redis.rpush('functions', jmethod.to_json)
+  end
 end
 
 class MyHttp
