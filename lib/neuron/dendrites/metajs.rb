@@ -74,6 +74,13 @@ class Metajs
                 msg = "funcs: #{list.inspect}"
                 # say the result
                 say(message["target"], msg)
+              when "show"
+                cmd = match.captures.last.match(/(\w+)/)
+                if cmd
+                  fname = cmd.captures.first
+                  list = funcs.select{|f| f["name"] == cmd.captures.first && f["nick"] == message["nick"]}
+                  say(message["target"], list.first["code"].gsub("\n",''))
+                end
               end
             end
             funcs.each {|f| exec_js(v8, f["code"], message)}
