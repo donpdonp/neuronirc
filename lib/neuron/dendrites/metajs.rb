@@ -44,7 +44,16 @@ class Metajs
                 cmd = match.captures.last.match(/(\w+) (.*)/)
                 name = cmd.captures.first
                 code = cmd.captures.last
-                (ok, err) = js_check(cmd.captures.last, v8)
+                if code.match(/^http/)
+                  request = HTTParty.get(code)
+                  if request.response.is_a?(Net::HTTPOK)
+                    code = request.body
+                  else
+                    say(message["target"], request.response.to_s)
+                    return
+                  end
+                end
+                (ok, err) = js_check(code, v8)
                 if ok
                   add_js(message["nick"], name, code)
                   msg = "added method #{name}"
