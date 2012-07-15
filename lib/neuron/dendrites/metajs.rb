@@ -92,7 +92,7 @@ class Metajs
 
   def exec_js(v8, js, message)
     begin
-      func = "(#{js})(#{message["message"].to_json})"
+      func = "(#{js})(JSON.parse(#{message.to_json}))"
       puts "exec_js: #{func}"
       response = v8.eval(func)
       puts "response: #{response}"
