@@ -92,7 +92,7 @@ class Metajs
 
   def exec_js(v8, js, message)
     begin
-      func = "(#{js})(JSON.parse(#{message.to_json}))"
+      func = "(#{js})(JSON.parse(#{message.to_json.to_json}))"
       puts "exec_js: #{func}"
       response = v8.eval(func)
       puts "response: #{response}"
@@ -111,7 +111,7 @@ class Metajs
 
   def js_check(code, v8)
     begin
-      func = "(#{code})()"
+      func = "(#{code})({})"
       puts "checking: #{func}"
       response = v8.eval(func) #syntax check
       return true
