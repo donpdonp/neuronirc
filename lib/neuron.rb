@@ -33,6 +33,9 @@ class Neuron
     Thread.new do
       ping_monitor
     end
+    Thread.new do
+      tick_tock
+    end
     while true
       @irc = IRCSocket.new(SETTINGS["server"])
       begin
@@ -186,6 +189,14 @@ class Neuron
         puts "Ping timeout! #{last_ping_at} seconds since last ping. Limit is #{SETTINGS["timeout"]}Closing socket."
         @irc.close
       end
+    end
+  end
+
+  def tick_tock
+    redis = Redis.new
+    loop do
+      sleep 60
+      redis.publish :lines, {type:"ticktock"}.to_json
     end
   end
 end
