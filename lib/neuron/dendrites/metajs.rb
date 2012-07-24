@@ -99,18 +99,26 @@ class Metajs
       func = "(#{js})(JSON.parse(#{message.to_json.to_json}))"
       puts "exec_js: #{func}"
       response = v8.eval(func)
-      puts "response: #{response}"
-      if response.to_s.length > 0
-        @redis.publish :say, {"command" => "say",
-                              "target" => message["target"],
-                              "message" => response}.to_json
+      puts "response: #{response.class} #{response}"
+      if response.is_a?(String)
+        if response.to_s.length > 0
+          say = {"command" => "say",
+                 "target" => message["target"],
+                 "message" => response}.to_json
+        end
+      end
+      if response.is_a?(V8::Object)
+        say = {"command" => "say",
+               "target" => response["target"],
+               "message" => response["message"]}.to_json
       end
     rescue V8::JSError => e
       puts "Error: #{e}"
-      @redis.publish :say, {"command" => "say",
-                            "target" => message["target"],
-                            "message" => e.to_s}.to_json
+      say = {"command" => "say",
+             "target" => message["target"],
+             "message" => e.to_s}.to_json
     end
+    @redis.publish :say, say if say
   end
 
   def js_check(code, v8)
