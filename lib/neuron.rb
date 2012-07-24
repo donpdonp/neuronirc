@@ -198,8 +198,8 @@ class Neuron
       sleep 60
       time_msg = {type:"ticktock",
                   target: SETTINGS["admin-channel"],
-                  message: Time.now}
-      redis.publish :lines, tim_msg.to_json
+                  message: Time.now.utc.strftime("%FT%T")}
+      redis.publish :lines, time_msg.to_json
     end
   end
 end
