@@ -11,9 +11,9 @@ redis = Redis.new
 def help
   puts "#{File.basename(__FILE__)} usage: [command] [options...]"
   puts "--- Daemon commands ---"
-  puts "'start [dentrites:<dendrite name>]'"
-  puts "'restart '"
-  puts "'stop [dentrites:<dendrite name>]'"
+  puts "'start [<dendrite name>]'"
+  puts "'restart [<dendrite name>]'"
+  puts "'stop [<dendrite name>]'"
   puts "--- IRC commands ---"
   puts "'join #<channel>'"
   puts "'part #<channel>'"
