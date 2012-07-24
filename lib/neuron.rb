@@ -196,7 +196,10 @@ class Neuron
     redis = Redis.new
     loop do
       sleep 60
-      redis.publish :lines, {type:"ticktock"}.to_json
+      time_msg = {type:"ticktock",
+                  target: SETTINGS["admin-channel"],
+                  message: Time.now}
+      redis.publish :lines, tim_msg.to_json
     end
   end
 end

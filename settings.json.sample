@@ -1,4 +1,7 @@
 { "server" : "irc.freenode.net",
-  "timeout" : 150, /* in seconds */
-  "nick"   : "neuronbot"
+  "timeout" : 500, /* in seconds */
+  "nick"   : "neuronbot",
+  "oauth"  : { "access_token" : "123token" },
+  "wolfram" : { "appid" : "app-id" },
+  "admin-channel": "#neuronbots"
 }

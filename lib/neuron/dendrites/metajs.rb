@@ -6,6 +6,9 @@ require 'v8'
 require 'httparty'
 require 'net/https'
 
+BASE_DIR = File.expand_path(File.join(File.dirname(__FILE__),"../../.."))
+SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"settings.json")))
+
 STDOUT.sync = true
 
 class Metajs
@@ -24,11 +27,12 @@ class Metajs
       on.message do |channel, json|
         message = JSON.parse(json)
         puts "Heard #{message}"
+
+        raw_funcs = @redis.lrange('functions', 0, @redis.llen('functions'))
+        funcs = raw_funcs.map{|f| JSON.parse(f)}
+
         if message["type"] == "emessage"
           if message["command"] == "PRIVMSG"
-            raw_funcs = @redis.lrange('functions', 0, @redis.llen('functions'))
-            funcs = raw_funcs.map{|f| JSON.parse(f)}
-            puts funcs.inspect
 
             match = message["message"].match(/^js (\w+) ?(.*)?$/)
             if match
@@ -83,9 +87,9 @@ class Metajs
                 end
               end
             end
-            funcs.each {|f| exec_js(v8, f["code"], message)}
           end
         end
+        funcs.each {|f| exec_js(v8, f["code"], message)}
       end
     end
   end
