@@ -17,7 +17,7 @@ class Semantic
       end
       on.message do |channel, json|
         message = JSON.parse(json)
-        if message["type"].nil?
+        if message["type"].nil? && message["command"] == "PRIVMSG"
           to_me_rex = /^\s*#{mynick}:?\s+(.*)/
           to_me_mat = message["message"].match(to_me_rex)
           if to_me_mat
@@ -27,9 +27,9 @@ class Semantic
             text = message["message"]
           end
           nick = message["name"].match(/(.*)!/)[1]
-          message.merge!({"type" => "emessage", 
-                          "nick" => nick, 
-                          "to_me" => to_me ? "true" : "false", 
+          message.merge!({"type" => "emessage",
+                          "nick" => nick,
+                          "to_me" => to_me ? "true" : "false",
                           "message" => text})
           puts "Repackaged #{message}"
           @redis.publish :lines, message.to_json
