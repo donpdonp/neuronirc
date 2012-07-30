@@ -12,7 +12,7 @@ require 'json'
     on.message do |channel, json|
       message = JSON.parse(json)
       puts "Heard #{message}"
-      if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
+      if message["type"] == "emessage" && message["target"][0] == '#' && message["to_me"] == "true"
         expr = message["message"].match(/!?karma ?([-+\d]+)?/)
         if expr
           count = expr[1] ? expr[1].to_i : 1
