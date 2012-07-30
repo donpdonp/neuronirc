@@ -24,7 +24,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
   on.message do |channel, json|
     message = JSON.parse(json)
     puts "Heard #{message}"
-    if message["target"][0] == '#' && message["type"] == "emessage" && message["to_me"] == "true"
+    if message["type"] == "emessage" && message["target"][0] == '#' && message["to_me"] == "true"
       expr = message["message"].match(/what'?s next\??/)
       if expr
 
