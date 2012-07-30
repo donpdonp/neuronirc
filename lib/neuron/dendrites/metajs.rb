@@ -31,8 +31,9 @@ class Metajs
         raw_funcs = @redis.lrange('functions', 0, @redis.llen('functions'))
         funcs = raw_funcs.map{|f| JSON.parse(f)}
 
-        if message["type"] == "emessage"
-          if message["command"] == "PRIVMSG"
+        ignore = false
+        if message["command"] == "PRIVMSG"
+          if message["type"] == "emessage"
 
             match = message["message"].match(/^js (\w+) ?(.*)?$/)
             if match
@@ -87,9 +88,11 @@ class Metajs
                 end
               end
             end
+          else
+            ignore = true
           end
         end
-        funcs.each {|f| exec_js(v8, f["code"], message)}
+        funcs.each {|f| exec_js(v8, f["code"], message)} unless ignore
       end
     end
   end
