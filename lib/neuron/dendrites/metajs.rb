@@ -107,6 +107,8 @@ class Metajs
       js = match.captures.last
       jjs = "JSON.stringify((#{js}))"
       value = exec_js(v8, jjs, message)
+    when "help"
+      say(message["target"], "list, add <name> <code or url>, show <name>, del <name>, eval <code>")
     else
       ignore = false
     end
