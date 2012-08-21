@@ -86,22 +86,27 @@ class Metajs
                   list = funcs.select{|f| f["name"] == cmd.captures.first && f["nick"] == message["nick"]}
                   say(message["target"], list.first["code"].gsub("\n",''))
                 end
+              when "eval"
+                js = match.captures.last
+                exec_js(v8, js, message)
               end
             end
           else
             ignore = true
           end
         end
-        funcs.each {|f| exec_js(v8, f["code"], message)} unless ignore
+        funcs.each do |f|
+          func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
+          puts "#{f["nick"]}#/{f["name"]}"
+          exec_js(v8, func, message)
+        end unless ignore
       end
     end
   end
 
   def exec_js(v8, js, message)
     begin
-      func = "(#{js})(JSON.parse(#{message.to_json.to_json}))"
-      puts "exec_js: #{func}"
-      response = v8.eval(func)
+      response = v8.eval(js)
       puts "response: #{response.class} #{response}"
       if response.is_a?(String)
         if response.to_s.length > 0
