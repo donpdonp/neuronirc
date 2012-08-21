@@ -171,7 +171,7 @@ class MyHttp
       response = http.request(request)
       response.body
     else
-      Net::HTTP.get(URI(url))
+      Net::HTTP.get(uri)
     end
   end
 end
