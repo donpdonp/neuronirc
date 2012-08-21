@@ -97,7 +97,7 @@ class Metajs
         end
         funcs.each do |f|
           func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
-          puts "#{f["nick"]}#/{f["name"]}"
+          puts "#{f["nick"]}/#{f["name"]}"
           exec_js(v8, func, message)
         end unless ignore
       end
