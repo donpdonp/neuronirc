@@ -37,59 +37,7 @@ class Metajs
 
             match = message["message"].match(/^js (\w+) ?(.*)?$/)
             if match
-              case match.captures.first
-              when "wipe"
-                funcs.each_with_index do |f, idx|
-                  if f["nick"] == message["nick"]
-                    @redis.lrem('functions', 0, raw_funcs[idx])
-                    say(message["target"], "#{message["nick"]}: wiped method #{f["name"]}")
-                  end
-                end
-              when "del"
-                cmd = match.captures.last.match(/(\w+)/)
-                if cmd
-                  fname = cmd.captures.first
-                  js_del_by_name(raw_funcs, funcs, fname, message)
-                end
-              when "add"
-                cmd = match.captures.last.match(/(\w+) (.*)/)
-                name = cmd.captures.first
-                js_del_by_name(raw_funcs, funcs, name, message)
-                code = cmd.captures.last
-                if code.match(/^http/)
-                  request = HTTParty.get(code)
-                  if request.response.is_a?(Net::HTTPOK)
-                    code = request.body
-                  else
-                    say(message["target"], request.response.to_s)
-                    return
-                  end
-                end
-                (ok, err) = js_check(code, v8)
-                if ok
-                  add_js(message["nick"], name, code)
-                  msg = "added method #{name} (#{code.length} bytes)"
-                  say(message["target"],msg)
-                else
-                  say(message["target"], err.to_s)
-                end
-              when "list"
-                # run it through the defined functions
-                list = funcs.select{|f| f}.map{|f| "#{f["nick"]}/#{f["name"]}"}
-                msg = "funcs: #{list.inspect}"
-                # say the result
-                say(message["target"], msg)
-              when "show"
-                cmd = match.captures.last.match(/(\w+)/)
-                if cmd
-                  fname = cmd.captures.first
-                  list = funcs.select{|f| f["name"] == cmd.captures.first && f["nick"] == message["nick"]}
-                  say(message["target"], list.first["code"].gsub("\n",''))
-                end
-              when "eval"
-                js = match.captures.last
-                exec_js(v8, js, message)
-              end
+              ignore = dispatch(v8, raw_funcs, funcs, match, message)
             end
           else
             ignore = true
@@ -98,10 +46,71 @@ class Metajs
         funcs.each do |f|
           func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
           puts "#{f["nick"]}/#{f["name"]}"
-          exec_js(v8, func, message)
+          say = exec_js(v8, func, message)
         end unless ignore
       end
     end
+  end
+
+  def dispatch(v8, raw_funcs, funcs, match, message)
+    ignore = true
+    case match.captures.first
+    when "wipe"
+      funcs.each_with_index do |f, idx|
+        if f["nick"] == message["nick"]
+          @redis.lrem('functions', 0, raw_funcs[idx])
+          say(message["target"], "#{message["nick"]}: wiped method #{f["name"]}")
+        end
+      end
+    when "del"
+      cmd = match.captures.last.match(/(\w+)/)
+      if cmd
+        fname = cmd.captures.first
+        js_del_by_name(raw_funcs, funcs, fname, message)
+      end
+    when "add"
+      cmd = match.captures.last.match(/(\w+) (.*)/)
+      name = cmd.captures.first
+      js_del_by_name(raw_funcs, funcs, name, message)
+      code = cmd.captures.last
+      if code.match(/^http/)
+        request = HTTParty.get(code)
+        if request.response.is_a?(Net::HTTPOK)
+          code = request.body
+        else
+          say(message["target"], request.response.to_s)
+          return
+        end
+      end
+      (ok, err) = js_check(code, v8)
+      if ok
+        add_js(message["nick"], name, code)
+        msg = "added method #{name} (#{code.length} bytes)"
+        say(message["target"],msg)
+      else
+        say(message["target"], err.to_s)
+      end
+    when "list"
+      # run it through the defined functions
+      list = funcs.select{|f| f}.map{|f| "#{f["nick"]}/#{f["name"]}"}
+      msg = "funcs: #{list.inspect}"
+      # say the result
+      say(message["target"], msg)
+    when "show"
+      cmd = match.captures.last.match(/(\w+)/)
+      if cmd
+        fname = cmd.captures.first
+        list = funcs.select{|f| f["name"] == cmd.captures.first && f["nick"] == message["nick"]}
+        say(message["target"], list.first["code"].gsub("\n",''))
+      end
+    when "eval"
+      js = match.captures.last
+      jjs = "JSON.stringify((#{js}))"
+      value = exec_js(v8, jjs, message)
+    else
+      ignore = false
+    end
+    return [ignore, value]
   end
 
   def exec_js(v8, js, message)
@@ -126,6 +135,7 @@ class Metajs
              "target" => message["target"],
              "message" => e.to_s}.to_json
     end
+
     @redis.publish :say, say if say
   end
 
