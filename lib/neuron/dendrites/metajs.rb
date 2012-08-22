@@ -119,7 +119,7 @@ class Metajs
     begin
       v8['db'] = RedisStore.new(nick)
       response = v8.eval(js)
-      puts "response: #{response.class} #{response}"
+      puts "response: #{response.class} #{response}" if response
       if response.is_a?(String)
         if response.to_s.length > 0
           say = {"command" => "say",
