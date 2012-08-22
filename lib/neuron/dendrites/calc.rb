@@ -21,15 +21,21 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
       if message["target"] && message["target"][0] == '#' && message.has_key?("type") && message["type"] == "emessage"
         expr = message["message"].match(/!?calc\s+([0-9\.\^*+-\/()^<>= ]+)/)
         if expr
-          answer = eval expr[1] rescue nil
-          puts "Calculating #{expr} to #{answer}"
-          msg = "#{expr[1]} == #{answer}"
-          if message["to_me"] == "true"
-            msg = "#{message["nick"]}: "+msg
+          begin
+            formula = expr[1]
+            puts "Calculating #{formula}"
+            answer = eval(formula)
+            msg = "#{formula} == #{answer}"
+            if message["to_me"] == "true"
+              msg = "#{message["nick"]}: "+msg
+            end
+          rescue Exception => e
+            puts "caught #{e}"
+            msg = "#{e}"
           end
           predis.publish :say, {"command" => "say",
                                 "target" => message["target"],
-                                "message" => msg}.to_json unless answer.nil?
+                                "message" => msg}.to_json
         end
 
         solve = message["message"].match(/^\s*!?solve\s+(.*)/)
