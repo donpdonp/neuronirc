@@ -46,7 +46,7 @@ class Metajs
         funcs.each do |f|
           func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
           puts "#{f["nick"]}/#{f["name"]}"
-          say = exec_js(v8, func, message)
+          say = exec_js(v8, func, f["nick"], message)
         end unless ignore
       end
     end
@@ -106,7 +106,7 @@ class Metajs
     when "eval"
       js = match.captures.last
       jjs = "JSON.stringify((#{js}))"
-      value = exec_js(v8, jjs, message)
+      value = exec_js(v8, jjs, message["nick"], message)
     when "help"
       say(message["target"], "list, add <name> <code or url>, show <name>, del <name>, eval <code>")
     else
@@ -115,8 +115,9 @@ class Metajs
     return [ignore, value]
   end
 
-  def exec_js(v8, js, message)
+  def exec_js(v8, js, nick, message)
     begin
+      v8['db'] = RedisStore.new(nick)
       response = v8.eval(js)
       puts "response: #{response.class} #{response}"
       if response.is_a?(String)
@@ -184,6 +185,39 @@ class MyHttp
       response.body
     else
       Net::HTTP.get(uri)
+    end
+  end
+end
+
+class RedisStore
+  def initialize(nick)
+    @nick = nick
+    @redis = Redis.new
+  end
+
+  def setkey
+    "#{@nick}:keys"
+  end
+
+  def valuekey(key)
+    "#{@nick}:keyspace:#{key}"
+  end
+
+  def set(key, value)
+    @redis.sadd(setkey, key)
+    @redis.set(valuekey(key), value)
+  end
+
+  def get(key)
+    if @redis.sismember(setkey, key)
+      @redis.get(valuekey(key))
+    end
+  end
+
+  def del(key)
+    if @redis.sismember(setkey, key)
+      @redis.srem(setkey, key)
+      @redis.del(valuekey(key))
     end
   end
 end
