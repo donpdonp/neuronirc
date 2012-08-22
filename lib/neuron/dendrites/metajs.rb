@@ -143,7 +143,7 @@ class Metajs
 
   def js_check(code, v8)
     begin
-      func = "(#{code})({})"
+      func = "(#{code})"
       puts "checking: #{func}"
       response = v8.eval(func) #syntax check
       return true
