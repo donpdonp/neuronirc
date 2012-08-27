@@ -28,7 +28,10 @@ class Neuron
   def go
     reset_redis
     Thread.new do
-      listen_redis
+      loop do
+        puts "Starting Redis Subscribe"
+        listen_redis
+      end
     end
     Thread.new do
       ping_monitor
