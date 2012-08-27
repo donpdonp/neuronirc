@@ -43,6 +43,13 @@ class Metajs
             ignore = true
           end
         end
+
+        if message["command"] == "PRIVMSG"
+          if message["type"] == "emessage"
+            ignore = true
+          end
+        end
+
         funcs.each do |f|
           func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
           puts "#{f["nick"]}/#{f["name"]}"
