@@ -175,14 +175,14 @@ class MyHttp
   def get(url)
     uri = URI(url)
     if uri.scheme == "https"
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |http|
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-      request = Net::HTTP::Get.new(uri.request_uri)
+        request = Net::HTTP::Get.new(uri.request_uri)
 
-      response = http.request(request)
-      response.body
+        response = http.request(request)
+        response.body
+      end
     else
       Net::HTTP.get(uri)
     end
