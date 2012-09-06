@@ -71,7 +71,6 @@ class Metajs
     when "add"
       cmd = match.captures.last.match(/(\w+) (.*)/)
       name = cmd.captures.first
-      js_del_by_name(raw_funcs, funcs, name, message)
       code = cmd.captures.last
       if code.match(/^http/)
         request = HTTParty.get(code)
@@ -84,6 +83,7 @@ class Metajs
       end
       (ok, err) = js_check(code, v8)
       if ok
+        js_del_by_name(raw_funcs, funcs, name, message)
         add_js(message["nick"], name, code)
         msg = "#{message["nick"]}: added method #{name} (#{code.length} bytes)"
         say(message["target"],msg)
