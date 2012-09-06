@@ -105,6 +105,7 @@ class Metajs
       end
     when "eval"
       js = match.captures.last
+      puts "eval: #{js}"
       jjs = "JSON.stringify((#{js}))"
       value = exec_js(v8, jjs, message["nick"], message)
     when "help"
