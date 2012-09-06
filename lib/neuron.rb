@@ -98,8 +98,12 @@ class Neuron
         rescue  JSON::ParserError
           puts "Parse error on #{json}"
         end
+        on.unsubscribe do |channel, subscriptions|
+          puts "Unsubscribed from ##{channel}"
+        end
       end
     end
+    puts "redis subscription thread ending"
   end
 
   def listen_irc
