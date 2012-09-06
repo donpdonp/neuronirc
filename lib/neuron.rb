@@ -161,10 +161,12 @@ class Neuron
 
       if msg[:command] == 'JOIN'
         nick = msg[:name].match(/(.*)!/)[1]
-        puts "Joined #{msg[:message]} #{nick}"
-        predis.sadd(msg[:message], nick.sub('@',''))
-        predis.sadd('channels', msg[:message])
-        puts "currently in "+predis.smembers('channels').inspect
+        if nick == SETTINGS["nick"]
+          puts "Joined #{msg[:message]} #{nick}"
+          predis.sadd(msg[:message], nick.sub('@',''))
+          predis.sadd('channels', msg[:message])
+          puts "currently in "+predis.smembers('channels').inspect
+        end
         predis.publish :lines, msg_hash.to_json
       end
 
