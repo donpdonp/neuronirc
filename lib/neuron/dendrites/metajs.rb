@@ -85,7 +85,7 @@ class Metajs
       (ok, err) = js_check(code, v8)
       if ok
         add_js(message["nick"], name, code)
-        msg = "added method #{name} (#{code.length} bytes)"
+        msg = "#{message["nick"]}: added method #{name} (#{code.length} bytes)"
         say(message["target"],msg)
       else
         say(message["target"], err.to_s)
