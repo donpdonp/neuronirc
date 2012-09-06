@@ -78,7 +78,7 @@ class Neuron
 
           if message["command"] == "say"
             channel = message['target']
-            puts "Saying #{message['message']} on #{channel}"
+            puts "IRC say #{channel}: #{message['message']}"
             @irc.privmsg(channel, message['message'])
           end
           if message["command"] == "join"
@@ -92,7 +92,7 @@ class Neuron
             @irc.part(channel)
           end
           if message["command"] == "nick"
-            puts "Changing nick #{message['message']}"
+            puts "Changing nick to #{message['message']}"
             @irc.nick(message['message'])
           end
         rescue  JSON::ParserError
