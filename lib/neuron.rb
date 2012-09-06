@@ -99,11 +99,11 @@ class Neuron
           puts "Parse error on #{json}"
         end
         on.unsubscribe do |channel, subscriptions|
-          puts "Unsubscribed from ##{channel}"
+          puts "redis: unsubscribed from ##{channel}"
         end
       end
     end
-    puts "redis subscription thread ending"
+    puts "redis: subscription thread ending"
   end
 
   def listen_irc
@@ -159,7 +159,7 @@ class Neuron
       end
 
       if msg[:command] == 'PRIVMSG'
-        puts "Storing #{msg_hash}"
+        puts "#{msg_hash}"
         predis.publish :lines, msg_hash.to_json
       end
 
