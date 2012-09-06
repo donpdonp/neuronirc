@@ -112,6 +112,7 @@ class Neuron
       msg = /^(:?(?<name>([^ ]*)) )?(?<command>[^ ]*)( (?<target>[^ ]*))? :?(?<message>(.*))$/.match(line.force_encoding("ISO8859-1"))
       puts "MISPARSE #{line} into #{msg.inspect}" if msg.nil?
       msg_hash = {name:msg[:name], command:msg[:command], target:msg[:target], message:msg[:message]}
+      @last_ping = Time.now
       puts line
 
       if msg[:command] == '376' # end of MOTD
@@ -145,7 +146,6 @@ class Neuron
       end
 
       if msg[:command] == 'PING'
-        @last_ping = Time.now
         @irc.pong(msg[:message])
       end
 
