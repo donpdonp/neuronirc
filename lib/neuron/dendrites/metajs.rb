@@ -100,8 +100,13 @@ class Metajs
       cmd = match.captures.last.match(/(\w+)/)
       if cmd
         fname = cmd.captures.first
-        list = funcs.select{|f| f["name"] == cmd.captures.first && f["nick"] == message["nick"]}
-        say(message["target"], list.first["code"].gsub("\n",''))
+        sname = cmd.captures.first
+        list = funcs.select{|f| f["name"] == sname && f["nick"] == message["nick"]}
+        if list.length > 0
+          say(message["target"], list.first["code"].gsub("\n",''))
+        else
+          say(message["target"], "Script #{message["nick"]}/#{sname} not found")
+        end
       end
     when "eval"
       js = match.captures.last
