@@ -187,6 +187,7 @@ class Metajs
     request = HTTParty.get("https://api.github.com/gists"+u.path)
     gist = JSON.parse(request.body)
     gist.history.first.url
+  end
 end
 
 class MyHttp
