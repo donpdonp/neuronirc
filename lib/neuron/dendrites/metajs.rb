@@ -69,26 +69,41 @@ class Metajs
         js_del_by_name(raw_funcs, funcs, fname, message)
       end
     when "add"
-      cmd = match.captures.last.match(/(\w+) (.*)/)
+      cmd = match.captures.last.match(/(\w+)\s+(.*)/)
       name = cmd.captures.first
       code = cmd.captures.last
       if code.match(/^http/)
-        request = HTTParty.get(code)
+        url = code
+        request = HTTParty.get(url)
         if request.response.is_a?(Net::HTTPOK)
           code = request.body
         else
-          say(message["target"], request.response.to_s)
+          say(message["target"], "#{url} #{request.response}")
           return
         end
       end
       (ok, err) = js_check(code, v8)
       if ok
         js_del_by_name(raw_funcs, funcs, name, message)
-        add_js(message["nick"], name, code)
+        add_js(message["nick"], name, code, url)
         msg = "#{message["nick"]}: added method #{name} (#{code.length} bytes)"
         say(message["target"],msg)
       else
         say(message["target"], err.to_s)
+      end
+    when "refresh"
+      cmd = match.captures.last.match(/(\w+)/)
+      list = funcs.select{|f| f["name"] == sname && f["nick"] == message["nick"]}
+      if list.length > 0
+        script = list.first
+        uri = URI.parse(script.url)
+        if u.host == "gist.github.com"
+          request = HTTParty.get("https://api.github.com/gists"+u.path)
+          gist = JSON.parse(request.body)
+          say(message["target"], "gist ##{gist.id} data found")
+        end
+      else
+        say(message["target"], "Script #{message["nick"]}/#{sname} not found")
       end
     when "list"
       # run it through the defined functions
@@ -161,8 +176,8 @@ class Metajs
     end
   end
 
-  def add_js(nick, name, code)
-      jmethod = {nick: nick, name: name, code: code}
+  def add_js(nick, name, code, url)
+      jmethod = {nick: nick, name: name, code: code, url: url}
       puts jmethod.inspect
       @redis.rpush('functions', jmethod.to_json)
   end
