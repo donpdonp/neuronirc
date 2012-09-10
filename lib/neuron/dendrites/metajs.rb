@@ -74,7 +74,13 @@ class Metajs
       code = cmd.captures.last
       if code.match(/^http/)
         url = code
-        request = HTTParty.get(url)
+        uri = URI.parse(url)
+        if uri.host == "gist.github.com"
+          load_url = gist_raw_url(uri)
+        else
+          load_url = url
+        end
+        request = HTTParty.get(load_url)
         if request.response.is_a?(Net::HTTPOK)
           code = request.body
         else
@@ -90,20 +96,6 @@ class Metajs
         say(message["target"],msg)
       else
         say(message["target"], err.to_s)
-      end
-    when "refresh"
-      cmd = match.captures.last.match(/(\w+)/)
-      list = funcs.select{|f| f["name"] == sname && f["nick"] == message["nick"]}
-      if list.length > 0
-        script = list.first
-        uri = URI.parse(script.url)
-        if u.host == "gist.github.com"
-          request = HTTParty.get("https://api.github.com/gists"+u.path)
-          gist = JSON.parse(request.body)
-          say(message["target"], "gist ##{gist.id} data found")
-        end
-      else
-        say(message["target"], "Script #{message["nick"]}/#{sname} not found")
       end
     when "list"
       # run it through the defined functions
@@ -190,6 +182,11 @@ class Metajs
       end
     end
   end
+
+  def gist_raw_url(url)
+    request = HTTParty.get("https://api.github.com/gists"+u.path)
+    gist = JSON.parse(request.body)
+    gist.history.first.url
 end
 
 class MyHttp
