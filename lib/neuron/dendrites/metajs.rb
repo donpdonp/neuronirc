@@ -80,6 +80,7 @@ class Metajs
         else
           load_url = url
         end
+        say(message["target"], "Loading #{load_url}")
         request = HTTParty.get(load_url)
         if request.response.is_a?(Net::HTTPOK)
           code = request.body
