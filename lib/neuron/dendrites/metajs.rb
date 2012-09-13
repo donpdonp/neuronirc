@@ -18,7 +18,7 @@ class Metajs
     setup
     v8 = V8::Context.new
     v8['http'] = MyHttp.new
-    client_redis = Redis.new
+    @client_redis = Redis.new
 
     Redis.new.subscribe(:lines) do |on|
       on.subscribe do |channel, subscriptions|
@@ -132,7 +132,7 @@ class Metajs
 
   def exec_js(v8, js, nick, message)
     begin
-      v8['db'] = RedisStore.new(nick, client_redis)
+      v8['db'] = RedisStore.new(nick, @client_redis)
       response = v8.eval(js)
       puts "response: #{response.class} #{response}" if response
       if response.is_a?(String)
