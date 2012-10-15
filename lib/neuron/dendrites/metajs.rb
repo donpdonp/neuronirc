@@ -188,7 +188,7 @@ class Metajs
   def gist_raw_url(uri)
     request = HTTParty.get("https://api.github.com/gists"+uri.path)
     gist = JSON.parse(request.body)
-    gist["files"]["gistfile1.txt"]["raw_url"]
+    gist["files"].first.last["raw_url"]
   end
 end
 
