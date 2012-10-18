@@ -208,6 +208,16 @@ class MyHttp
       Net::HTTP.get(uri)
     end
   end
+
+  def post(url, data)
+    uri = URI(url)
+    request = Net::HTTP::Post.new(uri.path)
+    request.set_form_data(data)
+    response = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == "https") do |http|
+      http.request(request)
+    end
+    response.body
+  end
 end
 
 class RedisStore
