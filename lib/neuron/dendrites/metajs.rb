@@ -101,7 +101,7 @@ class Metajs
       end
     when "list"
       # run it through the defined functions
-      list = funcs.select{|f| f}.map{|f| "#{f["nick"]}/#{f["name"]}"}
+      list = funcs.select{|f| f && f["nick"] == message["nick"]}.map{|f| "#{f["nick"]}/#{f["name"]}"}
       msg = "funcs: #{list.inspect}"
       # say the result
       say(message["target"], msg)
