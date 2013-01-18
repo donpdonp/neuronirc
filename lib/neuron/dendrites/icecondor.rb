@@ -15,16 +15,26 @@ class IceCondor
 
   def location_follow(username)
     Thread.new do
+      credis = Redis.new
       EventMachine.run do
         uri = "wss://api.icecondor.com"
         puts "IceCondor connecting #{uri}"
         ws = Faye::WebSocket::Client.new(uri)
         ws.onopen = lambda do |event|
-          puts "following #{username}"
-          ws.send({"type"=>"follow","username"=>username}.to_json)
+          puts "IceCondor connected. #{event.data.inspect}"
         end
         ws.onmessage = lambda do |event|
-          puts event.data
+          puts "event.data = #{event.data}"
+          msg = JSON.parse(event.data)
+          puts "msg = #{msg}"
+          if msg["type"] == "hello"
+            puts "got hello in onmessage. following #{username}"
+            ws.send({"type"=>"follow","username"=>username}.to_json)
+          end
+          if msg["type"] == "location"
+            msg.merge!({"type" => "location"})
+            credis.publish :lines, location.to_json
+          end
         end
       end
     end
