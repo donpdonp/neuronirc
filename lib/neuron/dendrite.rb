@@ -1,3 +1,6 @@
+require 'redis'
+require 'json'
+
 module Neuron
   module Dendrite
     def setup
@@ -13,6 +16,19 @@ module Neuron
                             "target" => target,
                             "message" => msg}.to_json
       puts "Saying #{target} #{msg}"
+    end
+
+    def on_message(&blk)
+      redis = Redis.new
+      redis.subscribe(:lines) do |on|
+        on.subscribe do |channel, subscriptions|
+          puts "Subscribed to ##{channel} (#{subscriptions} subscriptions)"
+        end
+        on.message do |channel, json|
+          message = JSON.parse(json)
+          yield channel, message
+        end
+      end
     end
   end
 end
