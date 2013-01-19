@@ -15,7 +15,6 @@ class IceCondor
 
   def location_follow(username)
     Thread.new do
-      credis = Redis.new
       EventMachine.run do
         uri = "wss://api.icecondor.com"
         puts "IceCondor connecting #{uri}"
@@ -33,7 +32,7 @@ class IceCondor
           end
           if msg["type"] == "location"
             msg.merge!({"type" => "location"})
-            credis.publish :lines, location.to_json
+            @redis.publish :lines, msg.to_json
           end
         end
       end
