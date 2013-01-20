@@ -37,13 +37,18 @@ class IceCondor
     if command == "stop"
       username = after
       if @follow_threads[username]
-        #say(message["target"], "already following #{username}")
+        Thread.kill @follow_threads[username]
+        @follow_threads.delete(username)
+        say(message["target"], "stopped track of #{username}")
       else
         say(message["target"], "not tracking #{username}")
       end
     end
     if command == "list"
       say(message["target"], "tracking #{@follow_threads.keys}")
+    end
+    if command == "help"
+      say(message["target"], "icecondor: track <username>, list, stop <username>")
     end
   end
 
