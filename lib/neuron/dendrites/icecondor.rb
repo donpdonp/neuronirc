@@ -71,11 +71,16 @@ class IceCondor
           end
           if msg["type"] == "location"
             msg.merge!({"type" => "location"})
-            puts "icecondor: #{msg}"
+            puts "publish: #{msg}"
             redis.publish :lines, msg.to_json
           end
         end
+        ws.onclose = lambda do |event|
+          p [:close, event.code, event.reason]
+          puts "websocket closed for #{username}"
+        end
       end
+      puts "Eventmachine.run ended"
     end
   end
 end
