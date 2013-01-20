@@ -6,10 +6,44 @@ STDOUT.sync = true
 class IceCondor
   include Neuron::Dendrite
 
+  def initialize
+    @follow_threads = {}
+  end
+
   def go
-    user_follow_thread = location_follow('donpdonp')
+    setup
     on_message do |channel, message|
-      puts "#{message}"
+      if message["command"] == "PRIVMSG" && message["type"] == "emessage"
+        match = message["message"].match(/^icecondor (\w+) ?(.*)?$/)
+        if match
+          cmd, after = match[1], match[2]
+          puts "icecondor #{cmd} #{after}"
+          dispatch(cmd, after, message)
+        end
+      end
+    end
+  end
+
+  def dispatch(command, after, message)
+    if command == "track"
+      username = after
+      if @follow_threads[username]
+        say(message["target"], "already following #{username}")
+      else
+        @follow_threads[username] = location_follow(username)
+        say(message["target"], "tracking started for #{username}")
+      end
+    end
+    if command == "stop"
+      username = after
+      if @follow_threads[username]
+        #say(message["target"], "already following #{username}")
+      else
+        say(message["target"], "not tracking #{username}")
+      end
+    end
+    if command == "list"
+      say(message["target"], "tracking #{@follow_threads.keys}")
     end
   end
 
@@ -32,6 +66,7 @@ class IceCondor
           end
           if msg["type"] == "location"
             msg.merge!({"type" => "location"})
+            puts "icecondor: #{msg}"
             redis.publish :lines, msg.to_json
           end
         end
