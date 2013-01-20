@@ -44,9 +44,9 @@ class Metajs
             ignore = true
           end
         end
+        # run the message through all user functions
         funcs.each do |f|
           func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
-          puts "#{f["nick"]}/#{f["name"]}"
           say = exec_js(v8, func, f["nick"], message)
         end unless ignore
       end
