@@ -101,20 +101,27 @@ class Metajs
       end
     when "list"
       # run it through the defined functions
-      list = funcs.select{|f| f && f["nick"] == message["nick"]}.map{|f| "#{f["nick"]}/#{f["name"]}"}
-      msg = "funcs: #{list.inspect}"
+      list_user = match.captures.last.match(/(\w+)/)
+      who = list_user ? list_user[1] : message["nick"]
+      list = funcs.select{|f| f && f["nick"] == who}.map{|f| "#{f["nick"]}/#{f["name"]}"}
+      if list.size > 0
+        msg = "funcs: #{list.inspect}"
+      else
+        msg = "no funcs defined for #{who}"
+      end
       # say the result
       say(message["target"], msg)
     when "show"
-      cmd = match.captures.last.match(/(\w+)/)
+      cmd = match.captures.last.match(/((\w+)\/)?(\w+)/)
       if cmd
-        fname = cmd.captures.first
-        sname = cmd.captures.first
-        list = funcs.select{|f| f["name"] == sname && f["nick"] == message["nick"]}
-        if list.length > 0
-          say(message["target"], list.first["code"].gsub("\n",''))
+        who = cmd.captures[1] || message["nick"]
+        fname = cmd.captures[2]
+        list = funcs.select{|f| f["name"] == fname && f["nick"] == who}.first
+        if list
+          code = "#{cmd.captures[1] ? list["nick"]+"/" : ""}#{list["name"]}: "+ (list["url"] || list["code"].gsub("\n",''))
+          say(message["target"], code)
         else
-          say(message["target"], "Script #{message["nick"]}/#{sname} not found")
+          say(message["target"], "Script #{who}/#{fname} not found")
         end
       end
     when "eval"
