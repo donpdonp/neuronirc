@@ -73,11 +73,10 @@ class Metajs
       cmd = match.captures.last.match(/(\w+)\s+(.*)/)
       name = cmd.captures.first
       code = cmd.captures.last
-      if code.match(/^http/)
-        url = code
-        uri = URI.parse(url)
-        if uri.host == "gist.github.com"
-          load_url = gist_raw_url(uri)
+      if code.match(/^https?:\/\//)
+        gid = gist_id(code)
+        if gid
+          load_url = gist_raw_url(gid)
         else
           load_url = url
         end
@@ -192,8 +191,12 @@ class Metajs
     end
   end
 
-  def gist_raw_url(uri)
-    request = HTTParty.get("https://api.github.com/gists"+uri.path)
+  def gist_id(url)
+    url.match(/(\d+)$/).captures.first
+  end
+
+  def gist_raw_url(id)
+    request = HTTParty.get("https://api.github.com/gists/"+id)
     gist = JSON.parse(request.body)
     gist["files"].first.last["raw_url"]
   end
