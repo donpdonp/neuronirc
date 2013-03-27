@@ -194,7 +194,8 @@ class Metajs
   end
 
   def gist_id(url)
-    url.match(/(\d+)$/).captures.first
+    gist = url.match(/\/\/gist.github.com\/.*\/(\d+)$/)
+    return gist.captures.first if gist
   end
 
   def gist_raw_url(id)
