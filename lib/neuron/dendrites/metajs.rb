@@ -73,8 +73,10 @@ class Metajs
       cmd = match.captures.last.match(/(\w+)\s+(.*)/)
       name = cmd.captures.first
       code = cmd.captures.last
+      url = nil
       if code.match(/^https?:\/\//)
-        gid = gist_id(code)
+        url = code
+        gid = gist_id(url)
         if gid
           load_url = gist_raw_url(gid)
         else
