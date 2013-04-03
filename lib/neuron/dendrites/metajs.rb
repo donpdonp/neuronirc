@@ -225,7 +225,11 @@ class MyHttp
   def post(url, data)
     uri = URI(url)
     request = Net::HTTP::Post.new(uri.path)
-    request.set_form_data(data)
+    if data.is_a?(String)
+      request.body = data
+    else
+      request.body = data.to_json
+    end
     response = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == "https") do |http|
       http.request(request)
     end
