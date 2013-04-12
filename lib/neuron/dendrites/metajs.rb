@@ -141,7 +141,7 @@ class Metajs
   def exec_js(v8, js, nick, message, script_name)
     begin
       v8['db'] = RedisStore.new(nick, @client_redis)
-      v8['irc'] = MyIrc.new(self, message)
+      v8['irc'] = MyBot.new(self, message)
       response = v8.eval(js)
       puts "response: #{response.class} #{response}" if response
       if response.is_a?(String)
@@ -229,18 +229,22 @@ class MyHttp
   end
 end
 
-class MyIrc
+class MyBot
   def initialize(metajs, message)
     @metajs = metajs
     @message = message
   end
 
-  def say(msg)
-    privmsg(@message["target"], msg)
+  def say(target, msg=nil)
+    unless msg
+      msg = target
+      target = @message["target"]
+    end
+    @metajs.say(target, msg)
   end
 
-  def privmsg(target, msg)
-    @metajs.say(target, msg)
+  def emit(msg)
+
   end
 end
 
