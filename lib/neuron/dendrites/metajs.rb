@@ -47,7 +47,7 @@ class Metajs
         # run the message through all user functions
         funcs.each do |f|
           func = "(#{f["code"]})(JSON.parse(#{message.to_json.to_json}))"
-          say = exec_js(v8, func, f["nick"], message)
+          say = exec_js(v8, func, f["nick"], message, f["name"])
         end unless ignore
       end
     end
@@ -70,7 +70,7 @@ class Metajs
         js_del_by_name(raw_funcs, funcs, fname, message)
       end
     when "add"
-      cmd = match.captures.last.match(/(\w+)\s+([^\s]*)/)
+      cmd = match.captures.last.match(/(\w+)\s+(.*)/)
       name = cmd.captures.first
       code = cmd.captures.last
       url = nil
@@ -129,7 +129,7 @@ class Metajs
       js = match.captures.last
       puts "eval: #{js}"
       jjs = "JSON.stringify((#{js}))"
-      value = exec_js(v8, jjs, message["nick"], message)
+      value = exec_js(v8, jjs, message["nick"], message, "eval")
     when "help"
       say(message["target"], "list, add <name> <code or url>, show <name>, del <name>, eval <code>")
     else
@@ -138,31 +138,23 @@ class Metajs
     return [ignore, value]
   end
 
-  def exec_js(v8, js, nick, message)
+  def exec_js(v8, js, nick, message, script_name)
     begin
       v8['db'] = RedisStore.new(nick, @client_redis)
+      v8['irc'] = MyIrc.new(self, message)
       response = v8.eval(js)
       puts "response: #{response.class} #{response}" if response
       if response.is_a?(String)
         if response.to_s.length > 0
-          say = {"command" => "say",
-                 "target" => message["target"],
-                 "message" => response}.to_json
+          say(message["target"], response)
         end
       end
       if response.is_a?(V8::Object)
-        say = {"command" => "say",
-               "target" => response["target"],
-               "message" => response["message"]}.to_json
+        say(response["target"], response["message"])
       end
     rescue V8::JSError => e
-      puts "Error: #{e}"
-      say = {"command" => "say",
-             "target" => message["target"],
-             "message" => e.to_s}.to_json
+      say(message["target"],e.to_s)
     end
-
-    @redis.publish :say, say if say
   end
 
   def js_check(code, v8)
@@ -234,6 +226,21 @@ class MyHttp
       http.request(request)
     end
     response.body
+  end
+end
+
+class MyIrc
+  def initialize(metajs, message)
+    @metajs = metajs
+    @message = message
+  end
+
+  def say(msg)
+    privmsg(@message["target"], msg)
+  end
+
+  def privmsg(target, msg)
+    @metajs.say(target, msg)
   end
 end
 
