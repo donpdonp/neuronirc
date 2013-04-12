@@ -18,6 +18,11 @@ module Neuron
       puts "Saying #{target} #{msg}"
     end
 
+    def emit(opts)
+      puts "Emitting #{opts.inspect}"
+      @redis.publish :lines, opts.to_json
+    end
+
     def on_message(&blk)
       redis = Redis.new
       redis.subscribe(:lines) do |on|
