@@ -191,7 +191,7 @@ class Metajs
   end
 
   def gist_raw_url(id)
-    request = HTTParty.get("https://api.github.com/gists/"+id)
+    request = HTTParty.get("https://api.github.com/gists/"+id, {:headers=>{"User-Agent"=>"neuronirc script load"}})
     gist = JSON.parse(request.body)
     gist["files"].first.last["raw_url"]
   end
@@ -199,7 +199,8 @@ end
 
 class MyHttp
   def get(url)
-    HTTParty.get(url, {:timeout => 5}).body
+    HTTParty.get(url, {:timeout => 5,
+                       :headers=>{"User-Agent"=>"neuronirc user script"}}).body
   end
 
   def post(url, data)
