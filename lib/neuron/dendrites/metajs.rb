@@ -143,7 +143,7 @@ class Metajs
       v8['db'] = RedisStore.new(nick, @client_redis)
       v8['bot'] = MyBot.new(self, message, "#{nick}/#{script_name}")
       response = v8.eval(js)
-      puts "response: #{response.class} #{response}" if response
+      puts "#{nick}/#{script_name} result: #{response.class} #{response}" if response
       if response.is_a?(String)
         if response.to_s.length > 0
           say(message["target"], response)
