@@ -42,7 +42,7 @@ class ActivityStream
     {
       verb: message["command"],
       provider: message["type"],
-      subject: { objectType: "person", twitter: message["checkin"]["user"]["contact"]["twitter"]}
+      subject: { objectType: "person", twitter: message["checkin"]["user"]["contact"]["twitter"]},
       object: { objectType: "place",
                 name: +message['checkin']['venue']['name']}
     }
