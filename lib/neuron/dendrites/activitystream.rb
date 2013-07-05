@@ -35,7 +35,9 @@ class ActivityStream
   end
 
   def dispatch(message)
-    r.table(@table_name).insert(build_activitystream(message))
+    doc = build_activitystream(message)
+    puts "Inserting #{doc.inspect}"
+    r.table(@table_name).insert(doc)
   end
 
   def build_activitystream(message)
