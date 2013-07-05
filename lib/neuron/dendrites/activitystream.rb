@@ -28,6 +28,7 @@ class ActivityStream
     setup
     rethink_setup
     on_message do |channel, message|
+      puts message.inspect
       if message["command"] == "checkin"
         dispatch(message)
       end
