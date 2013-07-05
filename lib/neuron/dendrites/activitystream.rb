@@ -28,7 +28,6 @@ class ActivityStream
     setup
     rethink_setup
     on_message do |channel, message|
-      puts message.inspect
       if message["command"] == "checkin"
         dispatch(message)
       end
@@ -38,7 +37,7 @@ class ActivityStream
   def dispatch(message)
     doc = build_activitystream(message)
     puts "Inserting #{doc.inspect}"
-    r.table(@table_name).insert(doc)
+    r.table(@table_name).insert(doc).run(@conn)
   end
 
   def build_activitystream(message)
