@@ -1,5 +1,6 @@
 require 'redis'
 require 'json'
+require 'time'
 
 module Neuron
   module Dendrite

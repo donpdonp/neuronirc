@@ -43,7 +43,8 @@ class ActivityStream
   def build_activitystream(message)
     act = {
       verb: message["command"],
-      provider: message["type"]
+      provider: message["type"],
+      published: Time.now.iso8601
     }
     if message["checkin"]
       act["subject"] = { objectType: "person", 
@@ -53,6 +54,7 @@ class ActivityStream
     else
       act["payload"] = message
     end
+    act
   end
 
 end
