@@ -41,13 +41,18 @@ class ActivityStream
   end
 
   def build_activitystream(message)
-    {
+    act = {
       verb: message["command"],
-      provider: message["type"],
-      subject: { objectType: "person", twitter: message["checkin"]["user"]["contact"]["twitter"]},
-      object: { objectType: "place",
-                name: message["checkin"]["venue"]["name"]}
+      provider: message["type"]
     }
+    if message["checkin"]
+      act["subject"] = { objectType: "person", 
+                   twitter: message["checkin"]["user"]["contact"]["twitter"]}
+      act["object"] = { objectType: "place",
+                        name: message["checkin"]["venue"]["name"]}
+    else
+      act["payload"] = message
+    end
   end
 
 end
