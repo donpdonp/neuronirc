@@ -198,9 +198,13 @@ class Metajs
 end
 
 class MyHttp
-  def get(url)
-    HTTParty.get(url, {:timeout => 5,
-                       :headers=>{"User-Agent"=>"neuronirc user script"}}).body
+  def get(url, opts = {})
+    hopts = {:timeout => 5,
+             :headers=>{"User-Agent"=>"neuronirc user script"}}
+    if opts[:bearer_token]
+      hopts[:headers]["Authorization"] = "Bearer #{opts[:bearer_token]}"
+    end
+    HTTParty.get(url, hopts).body
   end
 
   def post(url, data)
