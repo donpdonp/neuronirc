@@ -70,7 +70,7 @@ class Metajs
         js_del_by_name(raw_funcs, funcs, fname, message)
       end
     when "add"
-      cmd = match.captures.last.match(/(\w+)\s+(.*)/)
+      cmd = match.captures.last.match(/(\w+)\s+(\S*)/)
       name = cmd.captures.first
       code = cmd.captures.last
       url = nil
