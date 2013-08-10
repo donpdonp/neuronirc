@@ -18,11 +18,11 @@ class Semantic
       on.message do |channel, json|
         message = JSON.parse(json)
         if message["type"].nil? && message["command"] == "PRIVMSG"
-          to_me_rex = /^\s*(\w+):?\s+(.*)/
+          to_me_rex = /^(\s*(\w+):\s*)?(.*)/
           to_me_mat = message["message"].match(to_me_rex)
           if to_me_mat
-            text = to_me_mat[2]
-            to_nick = to_me_mat[1]
+            text = to_me_mat[3]
+            to_nick = to_me_mat[2]
             if to_nick == mynick
               to_me = true
             end
