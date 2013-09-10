@@ -187,12 +187,14 @@ class Neuron
   end
 
   def ping_monitor
+    predis = Redis.new
     while true
       sleep 30
       last_ping_at = Time.now - @last_ping
       if last_ping_at > SETTINGS["timeout"]
         puts "Ping timeout! #{last_ping_at} seconds since last ping. Limit is #{SETTINGS["timeout"]}Closing socket."
         @irc.close
+        puts "** currently in "+predis.smembers('channels').inspect
       end
     end
   end
