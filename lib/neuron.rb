@@ -26,7 +26,6 @@ class Neuron
   end
 
   def go
-    reset_redis
     Thread.new do
       loop do
         puts "Starting Redis Subscribe"
@@ -50,11 +49,6 @@ class Neuron
         puts "IRCSocket error #{e}"
       end
     end
-  end
-
-  def reset_redis
-    predis = Redis.new
-    predis.del 'channels'
   end
 
   def connect_irc
