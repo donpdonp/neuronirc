@@ -17,7 +17,6 @@ redis.subscribe(:lines) do |on|
   end
   on.message do |channel, json|
     message = JSON.parse(json)
-    puts "Heard #{message}"
     if message.has_key?("type") && message["type"] == "emessage"
       target = message["target"][0] == "#"  ? message["target"] : message["nick"]
 

@@ -23,7 +23,6 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
 
   on.message do |channel, json|
     message = JSON.parse(json)
-    puts "Heard #{message}"
     if message["type"] == "emessage" && message["target"][0] == '#' && message["to_me"] == "true"
       expr = message["message"].match(/what'?s next\??/)
       if expr
@@ -80,10 +79,10 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
         if plan && loc
           # distance
           puts "#{plan["place"]["latitude"].to_f} #{plan["place"]["longitude"].to_f} - #{loc.venue.location.lat} #{loc.venue.location.lng}"
-          distance = Haversine.distance(plan["place"]["latitude"].to_f, plan["place"]["longitude"].to_f, 
+          distance = Haversine.distance(plan["place"]["latitude"].to_f, plan["place"]["longitude"].to_f,
                                         loc.venue.location.lat, loc.venue.location.lng)
           distance = distance.to_miles.to_f
-          puts "#{Time.at(plan["start"])} #{Time.at(loc.createdAt)}"                                  
+          puts "#{Time.at(plan["start"])} #{Time.at(loc.createdAt)}"
           #time_distance = plan["start"].to_i - loc.createdAt
           time_distance = plan["start"].to_i - Time.now.to_i
           time_distance_in_hours = time_distance/60/60.0
@@ -94,7 +93,7 @@ fsq = Foursquare2::Client.new(:oauth_token => SETTINGS["oauth"]["access_token"])
         @predis.publish :say, {"command" => "say",
                               "target" => message["target"],
                               "message" => msg}.to_json
-      end                            
+      end
     end
   end
 end

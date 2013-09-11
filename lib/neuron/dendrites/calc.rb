@@ -17,7 +17,6 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
     end
     on.message do |channel, json|
       message = JSON.parse(json)
-      puts "Heard #{message}"
       if message["target"] && message["target"][0] == '#' && message.has_key?("type") && message["type"] == "emessage"
         expr = message["message"].match(/!?calc\s+([0-9\.\^*+-\/()^<>= ]+)/)
         if expr
