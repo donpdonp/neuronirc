@@ -210,10 +210,13 @@ class MyHttp
   def post(url, data)
     uri = URI(url)
     request = Net::HTTP::Post.new(uri.path)
+    puts "data is a #{data.class}: #{data.to_s}"
     if data.is_a?(String)
       request.body = data
     else
-      request.body = data.to_json
+      rhash = {}
+      data.each{|k,v| rhash[k]=v}
+      request.body = URI.encode_www_form(rhash)
     end
     response = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == "https") do |http|
       http.request(request)
