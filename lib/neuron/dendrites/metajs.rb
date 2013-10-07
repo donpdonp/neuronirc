@@ -85,7 +85,7 @@ class Metajs
         say(message["target"], "Loading #{load_url}")
         request = HTTParty.get(load_url)
         if request.response.is_a?(Net::HTTPOK)
-          code = request.body
+          code = request.body.force_encoding(Encoding::UTF_8)
         else
           say(message["target"], "#{url} #{request.response}")
           return
