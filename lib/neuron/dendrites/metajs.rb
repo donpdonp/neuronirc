@@ -142,18 +142,24 @@ class Metajs
     begin
       v8['db'] = RedisStore.new(nick, @client_redis)
       v8['bot'] = MyBot.new(self, message, "#{nick}/#{script_name}")
+      channel = message["target"] || SETTINGS["admin-channel"]
       response = v8.eval(js)
       puts "#{nick}/#{script_name} result: #{response.class} #{response}" if response
       if response.is_a?(String)
         if response.to_s.length > 0
-          say(message["target"], response)
+          msg = response
         end
       end
       if response.is_a?(V8::Object)
-        say(response["target"], response["message"])
+        channel = response["target"]
+        msg = response["message"]
       end
     rescue V8::JSError => e
-      say(message["target"],e.to_s)
+      msg = e.to_s
+    rescue NoMethodError => e
+      msg = e.to_s
+    ensure
+      say(channel, msg)
     end
   end
 
