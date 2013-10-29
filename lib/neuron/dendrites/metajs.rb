@@ -145,19 +145,19 @@ class Metajs
       channel = message["target"] || SETTINGS["admin-channel"]
       response = v8.eval(js)
       puts "#{nick}/#{script_name} result: #{response.class} #{response}" if response
-      if response.is_a?(String)
-        if response.to_s.length > 0
-          msg = response
-        end
-      end
       if response.is_a?(V8::Object)
         channel = response["target"]
         msg = response["message"]
+      else
+        msg = response
       end
     rescue V8::JSError,NoMethodError => e
       msg = "#{nick}/#{script_name} error: #{e}"
     ensure
-      say(channel, msg)
+      if channel.is_a?(String) && channel.length > 0 &&
+         msg.is_a?(String) && msg.length > 0
+        say(channel, msg)
+      end
     end
   end
 
