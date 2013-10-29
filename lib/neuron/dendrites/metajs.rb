@@ -154,10 +154,8 @@ class Metajs
         channel = response["target"]
         msg = response["message"]
       end
-    rescue V8::JSError => e
-      msg = e.to_s
-    rescue NoMethodError => e
-      msg = e.to_s
+    rescue V8::JSError,NoMethodError => e
+      msg = "#{nick}/#{script_name} error: #{e}"
     ensure
       say(channel, msg)
     end
