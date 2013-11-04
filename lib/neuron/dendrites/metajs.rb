@@ -241,7 +241,9 @@ class MyBot
       msg = target
       target = @message["target"]
     end
-    msg = @script_name+": "+msg
+    if target[0] == "#"
+      msg = @script_name+": "+msg
+    end
     @metajs.say(target, msg)
   end
 
