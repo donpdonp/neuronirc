@@ -104,9 +104,9 @@ class Metajs
       # run it through the defined functions
       list_user = match.captures.last.match(/(\w+)/)
       who = list_user ? list_user[1] : message["nick"]
-      list = funcs.select{|f| f && f["nick"] == who}.map{|f| "#{f["nick"]}/#{f["name"]}"}
+      list = funcs.select{|f| f && f["nick"] == who}.map{|f| "#{f["name"]}"}
       if list.size > 0
-        msg = "funcs: #{list.inspect}"
+        msg = "#{message["nick"]} scripts: #{list.inspect}"
       else
         msg = "no funcs defined for #{who}"
       end
