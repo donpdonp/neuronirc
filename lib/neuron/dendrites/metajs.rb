@@ -72,7 +72,7 @@ class Metajs
     when "add"
       cmd = match.captures.last.match(/(\w+)\s+(.*)/)
       name = cmd.captures.first
-      code = cmd.captures.last.chomp
+      code = cmd.captures.last.strip
       url = nil
       if code.match(/^https?:\/\//)
         url = code
