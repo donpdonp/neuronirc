@@ -211,6 +211,10 @@ class MyHttp
     HTTParty.get(url, hopts).body
   end
 
+  def headers(url)
+    HTTParty.get(url, {:follow_redirects => false}).headers
+  end
+
   def post(url, data)
     uri = URI(url)
     request = Net::HTTP::Post.new(uri.path)
