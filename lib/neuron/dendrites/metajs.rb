@@ -212,7 +212,7 @@ class MyHttp
   end
 
   def headers(url)
-    HTTParty.get(url, {:follow_redirects => false}).headers
+    HTTParty.get(url, {:follow_redirects => false}).headers.to_hash
   end
 
   def post(url, data)
