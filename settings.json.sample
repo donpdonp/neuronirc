@@ -1,4 +1,9 @@
-{ "server" : "irc.freenode.net",
+{
+  /* IRC Server */
+  /* "server" : "irc.freenode.net:6667", */
+  /* with ssl */
+  /* "server" : "irc.freenode.net:6697:ssl", */
+  "server" : "irc.freenode.net",
   "timeout" : 500, /* in seconds */
   "nick"   : "neuronbot",
   "oauth"  : { "access_token" : "123token" },

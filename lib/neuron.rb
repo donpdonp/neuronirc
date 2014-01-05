@@ -39,7 +39,6 @@ class Neuron
       tick_tock
     end
     while true
-      @irc = IRCSocket.new(SETTINGS["server"])
       begin
         connect_irc
         listen_irc
@@ -52,8 +51,13 @@ class Neuron
   end
 
   def connect_irc
-    puts "Connecting to #{SETTINGS["server"]}"
-    @irc.connect
+    server, port, ssl = SETTINGS["server"].split(':')
+    puts "Connecting to #{server}:#{port}"
+    begin
+      @irc = IRCSocket.open(server, port, ssl)
+    rescue OpenSSL::SSL::SSLError => e
+      puts "SSL connection error... #{e}"
+    end
     @irc.nick SETTINGS["nick"]
     @irc.user SETTINGS["nick"], 0, "*", "Neuron Bot"
     puts "Connected as #{SETTINGS["nick"]}"
