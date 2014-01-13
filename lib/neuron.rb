@@ -52,7 +52,8 @@ class Neuron
 
   def connect_irc
     server, port, ssl = SETTINGS["server"].split(':')
-    puts "Connecting to #{server}:#{port}"
+    port ||= 6667
+    puts "Connecting to #{server}:#{port}#{ssl&&" SSL"}"
     begin
       @irc = IRCSocket.open(server, port, ssl)
     rescue OpenSSL::SSL::SSLError => e
