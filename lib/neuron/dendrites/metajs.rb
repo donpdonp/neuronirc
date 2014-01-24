@@ -38,7 +38,9 @@ class Metajs
 
             match = message["message"].match(/^js (\w+) ?(.*)?$/)
             if match
-              ignore = dispatch(v8, raw_funcs, funcs, match, message)
+              if message["to_nick"].nil? || message["to_nick"] == @client_redis.get('nick')
+                ignore = dispatch(v8, raw_funcs, funcs, match, message)
+              end
             end
           else
             ignore = true
