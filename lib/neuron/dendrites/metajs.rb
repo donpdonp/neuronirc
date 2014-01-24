@@ -205,6 +205,10 @@ class MyHttp
   def get(url, opts = {})
     hopts = {:timeout => 5,
              :headers=>{"User-Agent"=>"neuronirc user script"}}
+    if opts[:username] && opts[:password]
+      hopts[:basic_auth] = {:username => opts[:username],
+                            :password => opts[:password]}
+    end
     if opts[:bearer_token]
       hopts[:headers]["Authorization"] = "Bearer #{opts[:bearer_token]}"
     end
