@@ -224,6 +224,9 @@ class MyHttp
   def post(url, data)
     uri = URI(url)
     request = Net::HTTP::Post.new(uri.path)
+    if uri.user && uri.password
+      request.basic_auth uri.user, uri.password
+    end
     puts "data is a #{data.class}: #{data.to_s}"
     if data.is_a?(String)
       request.body = data
