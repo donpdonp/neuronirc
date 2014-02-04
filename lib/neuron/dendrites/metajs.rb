@@ -16,7 +16,7 @@ class Metajs
 
   def go
     setup
-    v8 = V8::Context.new
+    v8 = V8::Context.new timeout:10000
     v8['http'] = MyHttp.new
     @client_redis = Redis.new
 
