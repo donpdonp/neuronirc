@@ -42,7 +42,8 @@ class Neuron
       begin
         connect_irc
         listen_irc
-      rescue SocketError
+      rescue SocketError => e
+        puts "IRCSocket error #{e}"
         sleep 10
       rescue Errno::ETIMEDOUT => e
         puts "IRCSocket error #{e}"
