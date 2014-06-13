@@ -108,7 +108,7 @@ class Metajs
       who = list_user ? list_user[1] : message["nick"]
       list = funcs.select{|f| f && f["nick"] == who}.map{|f| "#{f["name"]}"}
       if list.size > 0
-        msg = "#{message["nick"]} scripts: #{list.inspect}"
+        msg = "#{who} scripts: #{list.inspect}"
       else
         msg = "no funcs defined for #{who}"
       end
@@ -192,7 +192,7 @@ class Metajs
   end
 
   def gist_id(url)
-    gist = url.match(/\/\/gist.github.com\/.*\/(\d+)$/)
+    gist = url.match(/\/\/gist.github.com\/.*\/(.*)$/)
     return gist.captures.first if gist
   end
 

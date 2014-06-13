@@ -18,19 +18,19 @@ SETTINGS = JSON.load(File.open(File.join(BASE_DIR,"../../../settings.json")))
     on.message do |channel, json|
       message = JSON.parse(json)
       if message["target"] && message["target"][0] == '#' && message.has_key?("type") && message["type"] == "emessage"
-        expr = message["message"].match(/!?calc\s+([0-9\.\^*+-\/()^<>= ]+)/)
+        expr = message["message"].match(/^\s*(\(?[-+]?[0-9]*\.?[0-9]+[\^*+\-\/() ]+[\^*+\-\/() 0-9\.]+)\s*$/)
         if expr
           begin
             formula = expr[1]
             puts "Calculating #{formula}"
-            answer = eval(formula)
+            answer = eval("1.0*#{formula}")
             msg = "#{formula} == #{answer}"
             if message["to_me"] == "true"
               msg = "#{message["nick"]}: "+msg
             end
           rescue Exception => e
             puts "caught #{e}"
-            msg = "#{e}"
+            msg = e.to_s.match(/syntax error/) ? nil : "#{formula} : #{e}"
           end
           predis.publish :say, {"command" => "say",
                                 "target" => message["target"],
