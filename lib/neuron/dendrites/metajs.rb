@@ -58,11 +58,15 @@ class Metajs
   def dispatch(v8, raw_funcs, funcs, match, message)
     ignore = true
     case match.captures.first
+    when "help"
+      say(message["target"], "#{message["nick"]}: js [add|list|show|eval|del]")
     when "wipe"
-      funcs.each_with_index do |f, idx|
-        if f["nick"] == message["nick"]
-          @redis.lrem('functions', 0, raw_funcs[idx])
-          say(message["target"], "#{message["nick"]}: wiped method #{f["name"]}")
+      if match.captures.last.match(/all/)
+        funcs.each_with_index do |f, idx|
+          if f["nick"] == message["nick"]
+            @redis.lrem('functions', 0, raw_funcs[idx])
+            say(message["target"], "#{message["nick"]}: wiped method #{f["name"]}")
+          end
         end
       end
     when "del"
